@@ -15,8 +15,8 @@ namespace Common
         )
         {
             int halfPixelsInWidth = pixelsInWidth / 2;
-            Color[] colors = _generateColors(countColor);
             using Image<Rgb24> image = new Image<Rgb24>(pixelsInWidth, pixelsInHeight);
+            Color[] colors = _generateColors(countColor);
 
             for (int y = 0; y < pixelsInHeight; y++)
                 for (int x = 0; x < halfPixelsInWidth; x++)
@@ -28,7 +28,6 @@ namespace Common
                     image[x, y] = currentColor;
                     image[horizontalIndex - x, y] = currentColor;
                 }
-
 
             using MemoryStream ms = new MemoryStream();
             image.SaveAsBmp(ms);

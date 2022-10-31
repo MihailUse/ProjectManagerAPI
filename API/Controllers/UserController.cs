@@ -21,41 +21,46 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public IAsyncEnumerable<UserModel> Get()
+        public IEnumerable<UserModel> GetUsers()
         {
-            IAsyncEnumerable<User> users = _userService.GetUsers();
-            return _mapper.Map<IAsyncEnumerable<UserModel>>(users);
+            IEnumerable<User> users = _userService.GetUsers();
+            return _mapper.Map<IEnumerable<UserModel>>(users);
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<UserModel> GetBuId(Guid id)
+        public async Task<UserModel> GetUserById(Guid id)
         {
-            User user = await _userService.GetUserById(id);
+            User user = await _userService.GetUserByIdAsync(id);
             return _mapper.Map<UserModel>(user);
         }
 
         [HttpGet("{login:alpha}")]
-        public async Task<UserModel> GetByLogin(string login)
+        public async Task<UserModel> GetUserByLogin(string login)
         {
-            User user = await _userService.GetUserByEmail(login);
+            User user = await _userService.GetUserByLoginAsync(login);
             return _mapper.Map<UserModel>(user);
         }
 
         [HttpPost]
-        public Task<Guid> Post([FromBody] CreateUserModel newUser)
+        public Task<Guid> CreateUser([FromBody] CreateUserModel newUser)
         {
             User user = _mapper.Map<User>(newUser);
-            return _userService.CreateUser(user);
+            return _userService.CreateUserAsync(user);
         }
 
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPatch("{id:guid}")]
+        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserModel newUser)
         {
+            User user = _mapper.Map<User>(newUser);
+            await _userService.UpdateUserAsync(id, user);
+            return Ok("ok");
         }
 
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> DeleteUser(Guid id)
         {
+            await _userService.DeleteUserAsync(id);
+            return Ok("ok");
         }
     }
 }
