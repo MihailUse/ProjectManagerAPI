@@ -1,7 +1,8 @@
-﻿using API.Models.User;
+﻿using Common;
 using DAL;
 using DAL.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace API.Services
 {
@@ -14,14 +15,14 @@ namespace API.Services
             _context = context;
         }
 
-        public async Task<User> GetUserByIdAsync(Guid id)
+        public async Task<User> GetUserById(Guid id)
         {
             return await _context.Users.SingleAsync(x => x.Id == id);
         }
 
-        public async Task<User> GetUserByLoginAsync(string login)
+        public Task<User> GetUserByLogin(string login)
         {
-            return await _context.Users.SingleAsync(x => x.Login == login);
+            return _context.Users.SingleAsync(x => x.Login == login);
         }
 
         public bool IsLoginExists(string login)
@@ -29,36 +30,49 @@ namespace API.Services
             return _context.Users.Any(x => x.Login == login);
         }
 
-        public IEnumerable<User> GetUsers()
+        public IQueryable<User> GetUsers()
         {
-            return _context.Users.AsEnumerable();
+            return _context.Users.AsNoTracking();
         }
 
-        public async Task<Guid> CreateUserAsync(User user)
+        public async Task<Guid> CreateUser(User user)
         {
-            await _context.Users.AddAsync(user);
+            if (IsLoginExists(user.Login))
+                throw new Exception("User already exists");
+
+            EntityEntry<User> entityEntry = await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
-            return user.Id;
+            return entityEntry.Entity.Id;
         }
 
-        public async Task<User> UpdateUserAsync(Guid id, User newUser)
+        public async Task<User> UpdateUser(Guid id, User userOptions)
         {
-            User user = await GetUserByIdAsync(id);
+            User user = await GetUserById(id);
 
-            if (newUser.Login != null && !IsLoginExists(newUser.Login))
-                user.Login = newUser.Login ?? user.Login;
+            if (userOptions.Login != null && _context.Users.Any(x => (x.Login == userOptions.Login) && (x.Id != user.Id)))
+                user.Login = userOptions.Login;
 
-            user.About = newUser.About ?? user.About;
+            user.About = userOptions.About ?? user.About;
 
             await _context.SaveChangesAsync();
             return user;
         }
 
-        public async System.Threading.Tasks.Task DeleteUserAsync(Guid id)
+        public async System.Threading.Tasks.Task DeleteUser(Guid id)
         {
-            User user = await GetUserByIdAsync(id);
+            User user = await GetUserById(id);
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<User> GetUserByCredential(string login, string password)
+        {
+            User user = await GetUserByLogin(login);
+
+            if (!HashHelper.Verify(user.PasswordHash, password))
+                throw new Exception("Password is incorrect");
+
+            return user;
         }
     }
 }

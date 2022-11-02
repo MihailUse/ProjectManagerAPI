@@ -1,12 +1,15 @@
 ﻿using API.Models.User;
 using API.Services;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using DAL.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
 namespace API.Controllers
 {
+    // TODO: add action 
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -23,21 +26,21 @@ namespace API.Controllers
         [HttpGet]
         public IEnumerable<UserModel> GetUsers()
         {
-            IEnumerable<User> users = _userService.GetUsers();
-            return _mapper.Map<IEnumerable<UserModel>>(users);
+            return _userService.GetUsers().ProjectTo<UserModel>(_mapper.ConfigurationProvider);
         }
 
         [HttpGet("{id:guid}")]
+        [Authorize]
         public async Task<UserModel> GetUserById(Guid id)
         {
-            User user = await _userService.GetUserByIdAsync(id);
+            User user = await _userService.GetUserById(id);
             return _mapper.Map<UserModel>(user);
         }
 
         [HttpGet("{login:alpha}")]
         public async Task<UserModel> GetUserByLogin(string login)
         {
-            User user = await _userService.GetUserByLoginAsync(login);
+            User user = await _userService.GetUserByLogin(login);
             return _mapper.Map<UserModel>(user);
         }
 
@@ -45,21 +48,22 @@ namespace API.Controllers
         public Task<Guid> CreateUser([FromBody] CreateUserModel newUser)
         {
             User user = _mapper.Map<User>(newUser);
-            return _userService.CreateUserAsync(user);
+            return _userService.CreateUser(user);
         }
 
         [HttpPatch("{id:guid}")]
-        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserModel newUser)
+        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserModel userOptions)
         {
-            User user = _mapper.Map<User>(newUser);
-            await _userService.UpdateUserAsync(id, user);
+            User user = _mapper.Map<User>(userOptions);
+            await _userService.UpdateUser(id, user);
             return Ok("ok");
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
-            await _userService.DeleteUserAsync(id);
+            await _userService.DeleteUser(id);
             return Ok("ok");
         }
     }

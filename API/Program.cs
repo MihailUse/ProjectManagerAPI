@@ -15,36 +15,37 @@ namespace API
             var builder = WebApplication.CreateBuilder(args);
 
             // get configs
-            // var authSection = builder.Configuration.GetSection(AuthConfig.Position);
-            var authConfig = builder.Configuration.Get<AuthConfig>();
+            var authSection = builder.Configuration.GetSection(AuthConfig.Position);
+            var authConfig = authSection.Get<AuthConfig>();
 
             // Add services to the container.
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(SetupSwaggerAction);
+            builder.Services.AddSwaggerGen(_setupSwaggerAction);
 
-            builder.Services.AddDbContext<DAL.DataContext>(o =>
-                o.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL")));
+            builder.Services.Configure<AuthConfig>(authSection);
+            builder.Services.AddDbContext<DAL.DataContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL")));
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
             builder.Services.AddScoped<UserService>();
+            builder.Services.AddScoped<AuthService>();
 
-            var authBuilder = builder.Services.AddAuthentication(defaultScheme: JwtBearerDefaults.AuthenticationScheme);
-
-            authBuilder.AddJwtBearer(options =>
-            {
-                options.RequireHttpsMetadata = false;
-                options.TokenValidationParameters = new TokenValidationParameters
+            builder.Services.AddAuthentication(defaultScheme: JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(o =>
                 {
-                    ClockSkew = TimeSpan.Zero,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = authConfig.Issuer,
-                    ValidAudience = authConfig.Audience,
-                    IssuerSigningKey = authConfig.SymmetricSecurityKey(),
-                };
-            });
+                    o.RequireHttpsMetadata = builder.Environment.IsProduction();
+                    o.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ClockSkew = TimeSpan.Zero,
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = authConfig.Issuer,
+                        ValidAudience = authConfig.Audience,
+                        IssuerSigningKey = authConfig.SymmetricSecurityKey(),
+                    };
+                });
 
             builder.Services.AddAuthorization(o =>
             {
@@ -61,13 +62,14 @@ namespace API
             app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
 
             app.Run();
         }
 
-        private static void SetupSwaggerAction(SwaggerGenOptions options)
+        private static void _setupSwaggerAction(SwaggerGenOptions options)
         {
             options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme()
             {
