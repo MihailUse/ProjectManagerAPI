@@ -9,8 +9,5 @@ namespace API.Models.User
 
         [MaxLength(512)]
         public string? About { get; set; }
-
-        //[FromForm]
-        //public IFormFile? Avatar { get; set; }
     }
 }

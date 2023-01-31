@@ -1,14 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DAL.Interfaces;
 
 namespace DAL.Entities
 {
     public class Comment : ITimestamp, ISoftDeletable
     {
         public Guid Id { get; set; }
-        public string Text { get; set; }
+        public string Text { get; set; } = null!;
 
-        [Required] public User Owner { get; set; }
-        [Required] public Task Task { get; set; }
+        public Task Task { get; set; } = null!;
+        public User Owner { get; set; } = null!;
 
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }

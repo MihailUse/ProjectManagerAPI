@@ -20,9 +20,9 @@ namespace API.Services
             return await _context.Users.SingleAsync(x => x.Id == id);
         }
 
-        public Task<User> GetUserByLogin(string login)
+        public async Task<User> GetUserByLogin(string login)
         {
-            return _context.Users.SingleAsync(x => x.Login == login);
+            return await _context.Users.SingleAsync(x => x.Login == login);
         }
 
         public bool IsLoginExists(string login)

@@ -1,4 +1,4 @@
-﻿namespace DAL
+﻿namespace DAL.Interfaces
 {
     internal interface ISoftDeletable
     {

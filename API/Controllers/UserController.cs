@@ -5,22 +5,21 @@ using AutoMapper.QueryableExtensions;
 using DAL.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using Task = System.Threading.Tasks.Task;
 
 namespace API.Controllers
 {
-    // TODO: add action 
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly UserService _userService;
         private readonly IMapper _mapper;
+        private readonly UserService _userService;
 
-        public UserController(UserService userService, IMapper mapper)
+        public UserController(IMapper mapper, UserService userService)
         {
-            _userService = userService;
             _mapper = mapper;
+            _userService = userService;
         }
 
         [HttpGet]
@@ -52,19 +51,17 @@ namespace API.Controllers
         }
 
         [HttpPatch("{id:guid}")]
-        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserModel userOptions)
+        public async Task UpdateUser(Guid id, [FromForm] UpdateUserModel userOptions)
         {
             User user = _mapper.Map<User>(userOptions);
             await _userService.UpdateUser(id, user);
-            return Ok("ok");
         }
 
         [HttpDelete("{id:guid}")]
         [Authorize]
-        public async Task<IActionResult> DeleteUser(Guid id)
+        public async Task DeleteUser(Guid id)
         {
             await _userService.DeleteUser(id);
-            return Ok("ok");
         }
     }
 }

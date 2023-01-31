@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20221031150207_InitMigration")]
+    [Migration("20230131170209_InitMigration")]
     partial class InitMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -81,8 +81,8 @@ namespace API.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("UserId", "ProjectId");
 
@@ -106,7 +106,6 @@ namespace API.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<byte[]>("Logo")
@@ -135,14 +134,11 @@ namespace API.Migrations
 
             modelBuilder.Entity("DAL.Entities.Role", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
@@ -159,11 +155,9 @@ namespace API.Migrations
 
             modelBuilder.Entity("DAL.Entities.Status", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -192,7 +186,6 @@ namespace API.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<Guid>("OwnerId")
@@ -201,8 +194,8 @@ namespace API.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("StatusId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("StatusId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -220,6 +213,24 @@ namespace API.Migrations
                     b.HasIndex("StatusId");
 
                     b.ToTable("Tasks");
+                });
+
+            modelBuilder.Entity("DAL.Entities.Team", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Teams");
                 });
 
             modelBuilder.Entity("DAL.Entities.User", b =>
@@ -258,6 +269,24 @@ namespace API.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("MemberShipTeam", b =>
+                {
+                    b.Property<Guid>("TeamsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MemberShipsUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MemberShipsProjectId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("TeamsId", "MemberShipsUserId", "MemberShipsProjectId");
+
+                    b.HasIndex("MemberShipsUserId", "MemberShipsProjectId");
+
+                    b.ToTable("MemberShipTeam");
                 });
 
             modelBuilder.Entity("DAL.Entities.Assignee", b =>
@@ -366,6 +395,21 @@ namespace API.Migrations
                     b.Navigation("Project");
 
                     b.Navigation("Status");
+                });
+
+            modelBuilder.Entity("MemberShipTeam", b =>
+                {
+                    b.HasOne("DAL.Entities.Team", null)
+                        .WithMany()
+                        .HasForeignKey("TeamsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DAL.Entities.MemberShip", null)
+                        .WithMany()
+                        .HasForeignKey("MemberShipsUserId", "MemberShipsProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DAL.Entities.Project", b =>

@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -14,14 +13,26 @@ namespace API.Migrations
                 name: "Roles",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false)
+                    Description = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Roles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Teams",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Teams", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -49,7 +60,7 @@ namespace API.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Logo = table.Column<byte[]>(type: "bytea", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -71,7 +82,7 @@ namespace API.Migrations
                 {
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
-                    RoleId = table.Column<int>(type: "integer", nullable: false)
+                    RoleId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -100,8 +111,7 @@ namespace API.Migrations
                 name: "Statuses",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
@@ -116,14 +126,39 @@ namespace API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "MemberShipTeam",
+                columns: table => new
+                {
+                    TeamsId = table.Column<Guid>(type: "uuid", nullable: false),
+                    MemberShipsUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    MemberShipsProjectId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MemberShipTeam", x => new { x.TeamsId, x.MemberShipsUserId, x.MemberShipsProjectId });
+                    table.ForeignKey(
+                        name: "FK_MemberShipTeam_MemberShips_MemberShipsUserId_MemberShipsPro~",
+                        columns: x => new { x.MemberShipsUserId, x.MemberShipsProjectId },
+                        principalTable: "MemberShips",
+                        principalColumns: new[] { "UserId", "ProjectId" },
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MemberShipTeam_Teams_TeamsId",
+                        column: x => x.TeamsId,
+                        principalTable: "Teams",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Tasks",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Title = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: true),
                     OwnerId = table.Column<Guid>(type: "uuid", nullable: false),
-                    StatusId = table.Column<int>(type: "integer", nullable: false),
+                    StatusId = table.Column<Guid>(type: "uuid", nullable: false),
                     ProjectId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -182,8 +217,8 @@ namespace API.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Text = table.Column<string>(type: "text", nullable: false),
-                    OwnerId = table.Column<Guid>(type: "uuid", nullable: false),
                     TaskId = table.Column<Guid>(type: "uuid", nullable: false),
+                    OwnerId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -229,6 +264,11 @@ namespace API.Migrations
                 name: "IX_MemberShips_RoleId",
                 table: "MemberShips",
                 column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MemberShipTeam_MemberShipsUserId_MemberShipsProjectId",
+                table: "MemberShipTeam",
+                columns: new[] { "MemberShipsUserId", "MemberShipsProjectId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Projects_Name",
@@ -283,16 +323,22 @@ namespace API.Migrations
                 name: "Comments");
 
             migrationBuilder.DropTable(
-                name: "MemberShips");
+                name: "MemberShipTeam");
 
             migrationBuilder.DropTable(
                 name: "Tasks");
 
             migrationBuilder.DropTable(
-                name: "Roles");
+                name: "MemberShips");
+
+            migrationBuilder.DropTable(
+                name: "Teams");
 
             migrationBuilder.DropTable(
                 name: "Statuses");
+
+            migrationBuilder.DropTable(
+                name: "Roles");
 
             migrationBuilder.DropTable(
                 name: "Projects");

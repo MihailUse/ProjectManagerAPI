@@ -34,7 +34,7 @@ namespace API.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("Assignees", (string)null);
+                    b.ToTable("Assignees");
                 });
 
             modelBuilder.Entity("DAL.Entities.Comment", b =>
@@ -68,7 +68,7 @@ namespace API.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("Comments", (string)null);
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("DAL.Entities.MemberShip", b =>
@@ -79,8 +79,8 @@ namespace API.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("UserId", "ProjectId");
 
@@ -88,7 +88,7 @@ namespace API.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("MemberShips", (string)null);
+                    b.ToTable("MemberShips");
                 });
 
             modelBuilder.Entity("DAL.Entities.Project", b =>
@@ -104,7 +104,6 @@ namespace API.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<byte[]>("Logo")
@@ -128,19 +127,16 @@ namespace API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Projects", (string)null);
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("DAL.Entities.Role", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
@@ -152,16 +148,14 @@ namespace API.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("DAL.Entities.Status", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -174,7 +168,7 @@ namespace API.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Statuses", (string)null);
+                    b.ToTable("Statuses");
                 });
 
             modelBuilder.Entity("DAL.Entities.Task", b =>
@@ -190,7 +184,6 @@ namespace API.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<Guid>("OwnerId")
@@ -199,8 +192,8 @@ namespace API.Migrations
                     b.Property<Guid>("ProjectId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("StatusId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("StatusId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -217,7 +210,25 @@ namespace API.Migrations
 
                     b.HasIndex("StatusId");
 
-                    b.ToTable("Tasks", (string)null);
+                    b.ToTable("Tasks");
+                });
+
+            modelBuilder.Entity("DAL.Entities.Team", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Teams");
                 });
 
             modelBuilder.Entity("DAL.Entities.User", b =>
@@ -255,7 +266,25 @@ namespace API.Migrations
                     b.HasIndex("Login")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("MemberShipTeam", b =>
+                {
+                    b.Property<Guid>("TeamsId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MemberShipsUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("MemberShipsProjectId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("TeamsId", "MemberShipsUserId", "MemberShipsProjectId");
+
+                    b.HasIndex("MemberShipsUserId", "MemberShipsProjectId");
+
+                    b.ToTable("MemberShipTeam");
                 });
 
             modelBuilder.Entity("DAL.Entities.Assignee", b =>
@@ -364,6 +393,21 @@ namespace API.Migrations
                     b.Navigation("Project");
 
                     b.Navigation("Status");
+                });
+
+            modelBuilder.Entity("MemberShipTeam", b =>
+                {
+                    b.HasOne("DAL.Entities.Team", null)
+                        .WithMany()
+                        .HasForeignKey("TeamsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DAL.Entities.MemberShip", null)
+                        .WithMany()
+                        .HasForeignKey("MemberShipsUserId", "MemberShipsProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DAL.Entities.Project", b =>

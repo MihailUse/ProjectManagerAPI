@@ -21,7 +21,7 @@ namespace API
             // Add services to the container.
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(_setupSwaggerAction);
+            builder.Services.AddSwaggerGen(SetupSwaggerAction);
 
             builder.Services.Configure<AuthConfig>(authSection);
             builder.Services.AddDbContext<DAL.DataContext>(o => o.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL")));
@@ -30,8 +30,8 @@ namespace API
             builder.Services.AddScoped<UserService>();
             builder.Services.AddScoped<AuthService>();
 
-            builder.Services.AddAuthentication(defaultScheme: JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(o =>
+            builder.Services.AddAuthentication()
+                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, o =>
                 {
                     o.RequireHttpsMetadata = builder.Environment.IsProduction();
                     o.TokenValidationParameters = new TokenValidationParameters()
@@ -69,7 +69,7 @@ namespace API
             app.Run();
         }
 
-        private static void _setupSwaggerAction(SwaggerGenOptions options)
+        private static void SetupSwaggerAction(SwaggerGenOptions options)
         {
             options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme()
             {
