@@ -3,28 +3,27 @@ using AutoMapper;
 using Common;
 using DAL.Entities;
 
-namespace API
+namespace API;
+
+public class MappingProfile : Profile
 {
-    public class MappingProfile : Profile
+    public MappingProfile()
     {
-        public MappingProfile()
-        {
-            // models to entity
-            CreateMap<UpdateUserModel, User>();
+        // models to entity
+        CreateMap<UpdateUserModel, User>();
 
-            CreateMap<CreateUserModel, User>()
-                .ForMember(d => d.PasswordHash, m => m.MapFrom(s => HashHelper.GetHash(s.Password)))
-                .ForMember(d => d.Avatar, m => m.MapFrom(s => ImageHelper.GenerateImage(8, 8, 3, 2)));
+        CreateMap<CreateUserModel, User>()
+            .ForMember(d => d.PasswordHash, m => m.MapFrom(s => HashHelper.GetHash(s.Password)))
+            .ForMember(d => d.Avatar, m => m.MapFrom(s => ImageHelper.GenerateImage(8, 8, 3, 2)));
 
-            // entity to model
-            CreateMap<User, UserModel>();
-        }
+        // entity to model
+        CreateMap<User, UserModel>();
+    }
 
-        private byte[] _uploadImage(IFormFile file)
-        {
-            using MemoryStream ms = new MemoryStream();
-            file.CopyTo(ms);
-            return ms.ToArray();
-        }
+    private byte[] _uploadImage(IFormFile file)
+    {
+        using var ms = new MemoryStream();
+        file.CopyTo(ms);
+        return ms.ToArray();
     }
 }

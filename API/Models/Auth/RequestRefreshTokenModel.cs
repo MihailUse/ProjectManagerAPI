@@ -1,7 +1,6 @@
-namespace API.Models.Auth
+namespace API.Models.Auth;
+
+public class RequestRefreshTokenModel
 {
-    public class RequestRefreshTokenModel
-    {
-        public string RefreshToken { get; set; } = null!;
-    }
+    public string RefreshToken { get; set; } = null!;
 }

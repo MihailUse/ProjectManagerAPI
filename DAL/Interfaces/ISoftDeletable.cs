@@ -1,7 +1,6 @@
-﻿namespace DAL.Interfaces
+﻿namespace DAL.Interfaces;
+
+internal interface ISoftDeletable
 {
-    internal interface ISoftDeletable
-    {
-        public DateTime? DeletedAt { get; set; }
-    }
+    public DateTime? DeletedAt { get; set; }
 }
