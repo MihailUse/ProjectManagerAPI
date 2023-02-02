@@ -34,7 +34,7 @@ namespace API.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("Assignees");
+                    b.ToTable("Assignees", (string)null);
                 });
 
             modelBuilder.Entity("DAL.Entities.Comment", b =>
@@ -68,7 +68,7 @@ namespace API.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("DAL.Entities.MemberShip", b =>
@@ -88,7 +88,7 @@ namespace API.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("MemberShips");
+                    b.ToTable("MemberShips", (string)null);
                 });
 
             modelBuilder.Entity("DAL.Entities.Project", b =>
@@ -127,7 +127,7 @@ namespace API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
             modelBuilder.Entity("DAL.Entities.Role", b =>
@@ -148,7 +148,7 @@ namespace API.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("DAL.Entities.Status", b =>
@@ -168,7 +168,7 @@ namespace API.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("Statuses");
+                    b.ToTable("Statuses", (string)null);
                 });
 
             modelBuilder.Entity("DAL.Entities.Task", b =>
@@ -210,7 +210,7 @@ namespace API.Migrations
 
                     b.HasIndex("StatusId");
 
-                    b.ToTable("Tasks");
+                    b.ToTable("Tasks", (string)null);
                 });
 
             modelBuilder.Entity("DAL.Entities.Team", b =>
@@ -228,7 +228,7 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Teams");
+                    b.ToTable("Teams", (string)null);
                 });
 
             modelBuilder.Entity("DAL.Entities.User", b =>
@@ -266,7 +266,7 @@ namespace API.Migrations
                     b.HasIndex("Login")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("MemberShipTeam", b =>
@@ -284,7 +284,7 @@ namespace API.Migrations
 
                     b.HasIndex("MemberShipsUserId", "MemberShipsProjectId");
 
-                    b.ToTable("MemberShipTeam");
+                    b.ToTable("MemberShipTeam", (string)null);
                 });
 
             modelBuilder.Entity("DAL.Entities.Assignee", b =>

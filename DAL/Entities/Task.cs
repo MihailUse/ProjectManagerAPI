@@ -14,7 +14,7 @@ public class Task : ITimestamp, ISoftDeletable
     public List<Comment> Comments { get; set; } = null!;
     public List<Assignee> Assignees { get; set; } = null!;
 
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
-    public DateTime? DeletedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+    public DateTimeOffset? DeletedAt { get; set; }
 }

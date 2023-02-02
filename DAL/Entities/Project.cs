@@ -15,7 +15,7 @@ public class Project : ITimestamp, ISoftDeletable
     public List<Task> Tasks { get; set; } = null!;
     public List<MemberShip> Memberships { get; set; } = null!;
 
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
-    public DateTime? DeletedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+    public DateTimeOffset? DeletedAt { get; set; }
 }
