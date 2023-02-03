@@ -9,7 +9,7 @@ public class UserController : ApiControllerBase
 {
     // GET: api/<UserController>
     [HttpGet]
-    public async Task<ActionResult<PaginatedList<UserBriefDto>>> Get([FromQuery] GetUsersWithPaginationQuery query)
+    public async Task<ActionResult<PaginatedList<UserBriefDto>>> Get([FromQuery] GetUsersQuery query)
     {
         return await Mediator.Send(query);
     }

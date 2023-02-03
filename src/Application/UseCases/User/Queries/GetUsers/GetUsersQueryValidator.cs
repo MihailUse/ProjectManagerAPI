@@ -2,9 +2,9 @@
 
 namespace Application.UseCases.User.Queries.GetUsersWithPagination;
 
-public class GetUsersWithPaginationQueryValidator : AbstractValidator<GetUsersWithPaginationQuery>
+public class GetUsersQueryValidator : AbstractValidator<GetUsersQuery>
 {
-    public GetUsersWithPaginationQueryValidator()
+    public GetUsersQueryValidator()
     {
         RuleFor(x => x.PageNumber)
             .GreaterThanOrEqualTo(1)
