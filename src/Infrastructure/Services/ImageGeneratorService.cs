@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.Interfaces;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
@@ -6,13 +6,21 @@ namespace Domain.Services;
 
 public class ImageGeneratorService : IImageGeneratorService
 {
-    private static readonly Random _rand = new Random();
+    private readonly Random _rand = new Random();
 
-    public static byte[] GenerateImage(
-        int pixelsInWidth = 8,
-        int pixelsInHeight = 8,
-        int countColor = 3,
-        int whiteFrequency = 2
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="pixelsInWidth"></param>
+    /// <param name="pixelsInHeight"></param>
+    /// <param name="countColor"></param>
+    /// <param name="whiteFrequency"></param>
+    /// <returns></returns>
+    public byte[] GenerateImage(
+        int pixelsInWidth,
+        int pixelsInHeight,
+        int countColor,
+        int whiteFrequency
     )
     {
         int halfPixelsInWidth = pixelsInWidth / 2;
@@ -40,7 +48,7 @@ public class ImageGeneratorService : IImageGeneratorService
     /// </summary>
     /// <param name="countColor"></param>
     /// <returns>array with random colors</returns>
-    private static Color[] GenerateColors(int countColor)
+    private Color[] GenerateColors(int countColor)
     {
         var colors = new Color[countColor];
         byte[] bytes = new byte[3];

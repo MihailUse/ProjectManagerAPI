@@ -1,36 +1,45 @@
-﻿using Application.Common.DTO.Auth;
-using Application.Common.DTO.User;
-using Application.Common.Models;
-using Application.UseCases.Commands.CreateUser;
-using Application.UseCases.Queries.GetUsers;
+﻿using Application.DTO.Auth;
+using Application.DTO.User;
+using Application.Interfaces.Services;
+using Application.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers;
 
 [Authorize]
-public class UserController : ApiControllerBase
+[ApiController]
+[Route("api/[controller]")]
+public class UserController : ControllerBase
 {
-    // GET: api/<UserController>
-    [HttpGet]
-    public async Task<ActionResult<PaginatedList<UserBriefDto>>> Get([FromQuery] GetUsersQuery query) => await Mediator.Send(query);
+    private readonly IUserService _userService;
 
-    // GET api/<UserController>/5
+    public UserController(IUserService userService)
+    {
+        _userService = userService;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<PaginatedList<UserBriefDto>>> Get([FromQuery] GetUsersDto query)
+    {
+        return await _userService.GetUsers(query);
+    }
+
     [HttpGet("{id}")]
     public string Get(int id) => "value";
 
-    // POST api/<UserController>
-    [HttpPost]
     [AllowAnonymous]
-    public async Task<AccessTokensDto> Post([FromBody] CreateUserCommand command) => await Mediator.Send(command);
+    [HttpPost]
+    public async Task<AccessTokensDto> Post([FromBody] CreateUserDto query)
+    {
+        return await _userService.CreateUser(query);
+    }
 
-    // PUT api/<UserController>/5
     [HttpPut("{id}")]
     public void Put(int id, [FromBody] string value)
     {
     }
 
-    // DELETE api/<UserController>/5
     [HttpDelete("{id}")]
     public void Delete(int id)
     {

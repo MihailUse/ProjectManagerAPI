@@ -1,4 +1,4 @@
-﻿using Application.Common.Interfaces;
+﻿using Application.Interfaces;
 using Isopoh.Cryptography.Argon2;
 
 namespace Domain.Services;

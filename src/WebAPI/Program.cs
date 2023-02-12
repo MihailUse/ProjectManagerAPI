@@ -1,5 +1,5 @@
 using Application;
-using Application.Common.Interfaces;
+using Application.Interfaces;
 using Infrastructure;
 using Infrastructure.Configs;
 using Infrastructure.Persistence;
@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using WebAPI.Middlewares;
 using WebAPI.Services;
 
 namespace WebAPI;
@@ -16,7 +17,6 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        var authConfig = builder.Configuration.GetValue<AuthConfig>(AuthConfig.Position);
 
         // Add services to the container.
         builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -28,7 +28,9 @@ public class Program
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(SetupSwaggerAction);
 
-        builder.Services.AddAuthentication()
+        var authSection = builder.Configuration.GetSection(AuthConfig.Position);
+        var authConfig = authSection.Get<AuthConfig>();
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
                {
                    options.RequireHttpsMetadata = false;
@@ -70,6 +72,9 @@ public class Program
         app.UseHttpsRedirection();
         app.UseAuthentication();
         app.UseAuthorization();
+
+        // add middlewares
+        app.UseAuthorizationMiddleware();
 
         app.MapControllers();
         app.Run();
