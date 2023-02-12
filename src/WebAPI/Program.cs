@@ -1,11 +1,12 @@
 using Application;
 using Application.Common.Interfaces;
 using Infrastructure;
+using Infrastructure.Configs;
 using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using WebAPI.Configs;
 using WebAPI.Services;
 
 namespace WebAPI;
@@ -15,8 +16,7 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        var authSection = builder.Configuration.GetSection(AuthConfig.Position);
-        var authConfig = authSection.Get<AuthConfig>();
+        var authConfig = builder.Configuration.GetValue<AuthConfig>(AuthConfig.Position);
 
         // Add services to the container.
         builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -27,6 +27,32 @@ public class Program
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(SetupSwaggerAction);
+
+        builder.Services.AddAuthentication()
+               .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+               {
+                   options.RequireHttpsMetadata = false;
+                   options.TokenValidationParameters = new TokenValidationParameters()
+                   {
+                       ClockSkew = TimeSpan.Zero,
+                       ValidateIssuer = true,
+                       ValidateAudience = true,
+                       ValidateLifetime = true,
+                       ValidateIssuerSigningKey = true,
+                       ValidIssuer = authConfig.Issuer,
+                       ValidAudience = authConfig.Audience,
+                       IssuerSigningKey = authConfig.SymmetricSecurityKey(),
+                   };
+               });
+
+        builder.Services.AddAuthorization(o =>
+        {
+            o.AddPolicy("ValidAccessToken", p =>
+            {
+                p.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
+                p.RequireAuthenticatedUser();
+            });
+        });
 
         var app = builder.Build();
 
@@ -42,6 +68,7 @@ public class Program
         app.UseSwaggerUI();
 
         app.UseHttpsRedirection();
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();

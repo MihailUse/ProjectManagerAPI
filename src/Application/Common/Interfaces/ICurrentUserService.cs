@@ -2,5 +2,5 @@
 
 public interface ICurrentUserService
 {
-    Guid GetUserId(bool isRequired);
+    Guid GetUserId(bool isRequired = true);
 }

@@ -1,11 +1,11 @@
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace WebAPI.Configs;
+namespace Infrastructure.Configs;
 
 public class AuthConfig
 {
-    public const string Position = "Auth";
+    public const string Position = "AuthConfig";
     public string Key { get; set; } = String.Empty;
     public string Issuer { get; set; } = String.Empty;
     public string Audience { get; set; } = String.Empty;

@@ -8,6 +8,7 @@ namespace Infrastructure.Persistence;
 public class DatabaseContext : DbContext, IDatabaseContext
 {
     public DbSet<User> Users => Set<User>();
+    public DbSet<UserSession> UserSessions => Set<UserSession>();
     public DbSet<Project> Projects => Set<Project>();
     public DbSet<MemberShip> MemberShips => Set<MemberShip>();
     public DbSet<Comment> Comments => Set<Comment>();

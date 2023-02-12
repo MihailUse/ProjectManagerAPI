@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Application.UseCases.User.Queries.GetUsersWithPagination;
+namespace Application.UseCases.Queries.GetUsers;
 
 public class GetUsersQueryValidator : AbstractValidator<GetUsersQuery>
 {
@@ -8,8 +8,7 @@ public class GetUsersQueryValidator : AbstractValidator<GetUsersQuery>
     {
         RuleFor(x => x.PageNumber)
             .GreaterThanOrEqualTo(1)
-            .LessThanOrEqualTo(50)
-            .WithMessage("PageNumber at least greater than 0 and less than 51");
+            .WithMessage("PageNumber at least greater than 0");
 
         RuleFor(x => x.PageSize)
             .GreaterThanOrEqualTo(1)

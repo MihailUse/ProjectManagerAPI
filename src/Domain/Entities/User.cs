@@ -12,4 +12,5 @@ public class User : Timestamp
     public List<Project> Projects { get; set; } = null!;
     public List<Comment> Comments { get; set; } = null!;
     public List<Assignee> Assignees { get; set; } = null!;
+    public List<UserSession> UserSessions { get; set; } = null!;
 }

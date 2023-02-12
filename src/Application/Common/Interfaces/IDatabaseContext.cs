@@ -6,6 +6,7 @@ namespace Application.Common.Interfaces;
 public interface IDatabaseContext
 {
     DbSet<User> Users { get; }
+    DbSet<UserSession> UserSessions { get; }
     DbSet<Project> Projects { get; }
     DbSet<MemberShip> MemberShips { get; }
     DbSet<Comment> Comments { get; }
@@ -15,5 +16,5 @@ public interface IDatabaseContext
     DbSet<Domain.Entities.Task> Tasks { get; }
     DbSet<Team> Teams { get; }
 
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken);
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

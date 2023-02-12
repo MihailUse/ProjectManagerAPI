@@ -1,8 +1,8 @@
-﻿using Application.Common.DTO;
+﻿using Application.Common.DTO.User;
 using Application.Common.Models;
 using MediatR;
 
-namespace Application.UseCases.User.Queries.GetUsersWithPagination;
+namespace Application.UseCases.Queries.GetUsers;
 
 public record GetUsersQuery : IRequest<PaginatedList<UserBriefDto>>
 {

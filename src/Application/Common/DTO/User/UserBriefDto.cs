@@ -1,4 +1,4 @@
-﻿namespace Application.Common.DTO;
+﻿namespace Application.Common.DTO.User;
 
 public class UserBriefDto
 {

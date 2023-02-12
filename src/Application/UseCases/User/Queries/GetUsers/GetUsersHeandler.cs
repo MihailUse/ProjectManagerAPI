@@ -1,11 +1,11 @@
-﻿using Application.Common.DTO;
+﻿using Application.Common.DTO.User;
 using Application.Common.Interfaces;
 using Application.Common.Models;
 using Application.Mappings;
 using AutoMapper;
 using MediatR;
 
-namespace Application.UseCases.User.Queries.GetUsersWithPagination;
+namespace Application.UseCases.Queries.GetUsers;
 
 public class GetUsersHeandler : IRequestHandler<GetUsersQuery, PaginatedList<UserBriefDto>>
 {
