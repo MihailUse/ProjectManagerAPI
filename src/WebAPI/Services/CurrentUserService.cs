@@ -1,6 +1,6 @@
-﻿using Application.Interfaces;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Security.Claims;
+using Application.Interfaces.Services;
 
 namespace WebAPI.Services;
 

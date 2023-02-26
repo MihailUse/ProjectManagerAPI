@@ -1,5 +1,5 @@
 using Application;
-using Application.Interfaces;
+using Application.Interfaces.Services;
 using Infrastructure;
 using Infrastructure.Configs;
 using Infrastructure.Persistence;
@@ -12,7 +12,7 @@ using WebAPI.Services;
 
 namespace WebAPI;
 
-public class Program
+public static class Program
 {
     public static void Main(string[] args)
     {
@@ -31,21 +31,21 @@ public class Program
         var authSection = builder.Configuration.GetSection(AuthConfig.Position);
         var authConfig = authSection.Get<AuthConfig>();
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-               .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-               {
-                   options.RequireHttpsMetadata = false;
-                   options.TokenValidationParameters = new TokenValidationParameters()
-                   {
-                       ClockSkew = TimeSpan.Zero,
-                       ValidateIssuer = true,
-                       ValidateAudience = true,
-                       ValidateLifetime = true,
-                       ValidateIssuerSigningKey = true,
-                       ValidIssuer = authConfig.Issuer,
-                       ValidAudience = authConfig.Audience,
-                       IssuerSigningKey = authConfig.SymmetricSecurityKey(),
-                   };
-               });
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ClockSkew = TimeSpan.Zero,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = authConfig.Issuer,
+                    ValidAudience = authConfig.Audience,
+                    IssuerSigningKey = authConfig.SymmetricSecurityKey(),
+                };
+            });
 
         builder.Services.AddAuthorization(o =>
         {
@@ -61,9 +61,9 @@ public class Program
         // Initialise and seed database
         using (var scope = app.Services.CreateScope())
         {
-            var initialiser = scope.ServiceProvider.GetRequiredService<DatabaseInitialiser>();
-            initialiser.Initialise();
-            initialiser.SeedData();
+            var initializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
+            initializer.Initialise();
+            initializer.SeedData();
         }
 
         app.UseSwagger();

@@ -24,15 +24,15 @@ public class IdentityService : IIdentityService
     private readonly IDatabaseContext _context;
     private readonly AuthConfig _authConfig;
     private readonly ImageGeneratorConfig _imageConfig;
-    private readonly IHashGeneratorService _hashGenerator;
-    private readonly IImageGeneratorService _imageGenerator;
+    private readonly IHashGenerator _hashGenerator;
+    private readonly IImageGenerator _imageGenerator;
 
     public IdentityService(
         IDatabaseContext context,
         IOptions<AuthConfig> authConfig,
         IOptions<ImageGeneratorConfig> imageConfig,
-        IHashGeneratorService hashGenerator,
-        IImageGeneratorService imageGenerator
+        IHashGenerator hashGenerator,
+        IImageGenerator imageGenerator
     )
     {
         _context = context;
@@ -102,7 +102,8 @@ public class IdentityService : IIdentityService
 
         // TODO: test this validation
         var tokenHandler = new JwtSecurityTokenHandler();
-        var principal = tokenHandler.ValidateToken(refreshToken, tokenValidationParameters, out SecurityToken securityToken);
+        var principal =
+            tokenHandler.ValidateToken(refreshToken, tokenValidationParameters, out SecurityToken securityToken);
         if (securityToken is not JwtSecurityToken jwtSecurityToken)
             throw new AuthException("Invalid token");
 
@@ -112,7 +113,8 @@ public class IdentityService : IIdentityService
             throw new AuthException("Invalid token");
 
         // get session
-        var session = _context.UserSessions.FirstOrDefault(x => x.RefreshTokenId == Guid.Parse(refreshTokenId) && x.IsActive);
+        var session =
+            _context.UserSessions.FirstOrDefault(x => x.RefreshTokenId == Guid.Parse(refreshTokenId) && x.IsActive);
         if (session == default)
             throw new AuthException("Session not found");
 
@@ -161,7 +163,8 @@ public class IdentityService : IIdentityService
             claims: claims,
             notBefore: dateTime,
             expires: dateTime.AddMinutes(lifeTime),
-            signingCredentials: new SigningCredentials(_authConfig.SymmetricSecurityKey(), SecurityAlgorithms.HmacSha256)
+            signingCredentials: new SigningCredentials(_authConfig.SymmetricSecurityKey(),
+                SecurityAlgorithms.HmacSha256)
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);

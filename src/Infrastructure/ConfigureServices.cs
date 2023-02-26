@@ -1,6 +1,5 @@
 ﻿using Application.Interfaces;
 using Application.Interfaces.Services;
-using Domain.Services;
 using Infrastructure.Configs;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Interceptors;
@@ -14,7 +13,8 @@ namespace Infrastructure;
 
 public static class ConfigureServices
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services,
+        IConfiguration configuration)
     {
         var authSection = configuration.GetSection(AuthConfig.Position);
         if (authSection == null)
@@ -31,8 +31,8 @@ public static class ConfigureServices
         services.Configure<AuthConfig>(authSection);
         services.Configure<ImageGeneratorConfig>(imageGeneratorSection);
         services.AddSingleton<SaveChangesInterceptor, TimestampSaveChangesInterceptor>();
-        services.AddSingleton<IImageGeneratorService, ImageGeneratorService>();
-        services.AddSingleton<IHashGeneratorService, HashGeneratorService>();
+        services.AddSingleton<IImageGenerator, ImageGeneratorService>();
+        services.AddSingleton<IHashGenerator, HashGeneratorService>();
         services.AddScoped<IIdentityService, IdentityService>();
 
         services.AddDbContext<DatabaseContext>(options =>
@@ -40,7 +40,7 @@ public static class ConfigureServices
                 builder.MigrationsAssembly(typeof(DatabaseContext).Assembly.FullName)));
 
         services.AddScoped<IDatabaseContext>(x => x.GetRequiredService<DatabaseContext>());
-        services.AddScoped<DatabaseInitialiser>();
+        services.AddScoped<DatabaseInitializer>();
 
         return services;
     }

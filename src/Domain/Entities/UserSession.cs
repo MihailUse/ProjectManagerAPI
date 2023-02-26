@@ -10,6 +10,9 @@ public class UserSession
 
     public User User { get; set; } = null!;
 
-    public UserSession() { }
+    public UserSession()
+    {
+    }
+
     public UserSession(Guid userId) => UserId = userId;
 }

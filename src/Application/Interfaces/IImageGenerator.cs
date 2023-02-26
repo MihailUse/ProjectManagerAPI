@@ -1,6 +1,6 @@
 ﻿namespace Application.Interfaces;
 
-public interface IImageGeneratorService
+public interface IImageGenerator
 {
     byte[] GenerateImage(
         int pixelsInWidth,

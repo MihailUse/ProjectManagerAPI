@@ -2,9 +2,9 @@
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 
-namespace Domain.Services;
+namespace Infrastructure.Services;
 
-public class ImageGeneratorService : IImageGeneratorService
+public class ImageGeneratorService : IImageGenerator
 {
     private readonly Random _rand = new Random();
 
@@ -24,19 +24,19 @@ public class ImageGeneratorService : IImageGeneratorService
     )
     {
         int halfPixelsInWidth = pixelsInWidth / 2;
+        Color[] colors = GenerateColors(countColor);
         using var image = new Image<Rgb24>(pixelsInWidth, pixelsInHeight);
-        var colors = GenerateColors(countColor);
 
         for (int y = 0; y < pixelsInHeight; y++)
-            for (int x = 0; x < halfPixelsInWidth; x++)
-            {
-                int horizontalIndex = pixelsInWidth - 1; // width-1 because SetPixel range [0, width-1]
-                int randomColor = _rand.Next(countColor);
-                var currentColor = _rand.Next(whiteFrequency) == 1 ? colors[randomColor] : Color.White;
+        for (int x = 0; x < halfPixelsInWidth; x++)
+        {
+            int horizontalIndex = pixelsInWidth - 1; // width-1 because SetPixel range [0, width-1]
+            int randomColor = _rand.Next(countColor);
+            var currentColor = _rand.Next(whiteFrequency) == 1 ? colors[randomColor] : Color.White;
 
-                image[x, y] = currentColor;
-                image[horizontalIndex - x, y] = currentColor;
-            }
+            image[x, y] = currentColor;
+            image[horizontalIndex - x, y] = currentColor;
+        }
 
         using var ms = new MemoryStream();
         image.SaveAsBmp(ms);
@@ -50,7 +50,7 @@ public class ImageGeneratorService : IImageGeneratorService
     /// <returns>array with random colors</returns>
     private Color[] GenerateColors(int countColor)
     {
-        var colors = new Color[countColor];
+        Color[] colors = new Color[countColor];
         byte[] bytes = new byte[3];
 
         for (int i = 0; i < countColor; i++)

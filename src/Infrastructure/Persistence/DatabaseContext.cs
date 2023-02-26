@@ -20,7 +20,8 @@ public class DatabaseContext : DbContext, IDatabaseContext
 
     private readonly SaveChangesInterceptor _saveChangesInterceptor;
 
-    public DatabaseContext(DbContextOptions<DatabaseContext> options, SaveChangesInterceptor interceptor) : base(options)
+    public DatabaseContext(DbContextOptions<DatabaseContext> options, SaveChangesInterceptor interceptor) :
+        base(options)
     {
         _saveChangesInterceptor = interceptor;
     }
