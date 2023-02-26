@@ -4,7 +4,7 @@ public class Project : Timestamp
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = null!;
-    public byte[] Logo { get; set; } = null!;
+    public byte[]? Logo { get; set; }
     public string? Description { get; set; }
 
     public List<Status> Statuses { get; set; } = null!;

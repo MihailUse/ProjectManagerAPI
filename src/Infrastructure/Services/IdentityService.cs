@@ -71,7 +71,7 @@ public class IdentityService : IIdentityService
 
     public async Task<AccessTokensDto> AuthorizeAsync(string login, string password)
     {
-        var user = _context.Users.FirstOrDefault(x => x.Login == login && !x.DeletedAt.HasValue);
+        var user = _context.Users.FirstOrDefault(x => x.Login == login);
         if (user == default)
             throw new NotFoundException("User not found");
 
@@ -102,9 +102,8 @@ public class IdentityService : IIdentityService
 
         // TODO: test this validation
         var tokenHandler = new JwtSecurityTokenHandler();
-        var principal =
-            tokenHandler.ValidateToken(refreshToken, tokenValidationParameters, out SecurityToken securityToken);
-        if (securityToken is not JwtSecurityToken jwtSecurityToken)
+        var principal = tokenHandler.ValidateToken(refreshToken, tokenValidationParameters, out var securityToken);
+        if (securityToken == default || principal == default)
             throw new AuthException("Invalid token");
 
         // get refreshTokenId
@@ -113,8 +112,8 @@ public class IdentityService : IIdentityService
             throw new AuthException("Invalid token");
 
         // get session
-        var session =
-            _context.UserSessions.FirstOrDefault(x => x.RefreshTokenId == Guid.Parse(refreshTokenId) && x.IsActive);
+        var session = _context.UserSessions.FirstOrDefault(x
+            => x.RefreshTokenId == Guid.Parse(refreshTokenId) && x.IsActive);
         if (session == default)
             throw new AuthException("Session not found");
 

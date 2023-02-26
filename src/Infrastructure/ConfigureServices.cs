@@ -28,19 +28,23 @@ public static class ConfigureServices
         if (connectionString == null)
             throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
+        // Configure
         services.Configure<AuthConfig>(authSection);
         services.Configure<ImageGeneratorConfig>(imageGeneratorSection);
-        services.AddSingleton<SaveChangesInterceptor, TimestampSaveChangesInterceptor>();
-        services.AddSingleton<IImageGenerator, ImageGeneratorService>();
-        services.AddSingleton<IHashGenerator, HashGeneratorService>();
-        services.AddScoped<IIdentityService, IdentityService>();
 
+        // services 
         services.AddDbContext<DatabaseContext>(options =>
             options.UseNpgsql(connectionString, builder =>
                 builder.MigrationsAssembly(typeof(DatabaseContext).Assembly.FullName)));
 
         services.AddScoped<IDatabaseContext>(x => x.GetRequiredService<DatabaseContext>());
         services.AddScoped<DatabaseInitializer>();
+        services.AddScoped<IIdentityService, IdentityService>();
+
+        services.AddSingleton<SaveChangesInterceptor, TimestampSaveChangesInterceptor>();
+        services.AddSingleton<IImageGenerator, ImageGeneratorService>();
+        services.AddSingleton<IHashGenerator, HashGeneratorService>();
+        services.AddSingleton<IDatabaseFunctions, DatabaseFunctions>();
 
         return services;
     }

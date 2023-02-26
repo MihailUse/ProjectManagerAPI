@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Security.Claims;
+using Application.Exceptions;
 using Application.Interfaces.Services;
 
 namespace WebAPI.Services;
@@ -13,14 +14,16 @@ public class CurrentUserService : ICurrentUserService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public Guid GetUserId(bool isRequired = true)
+    public Guid UserId
     {
-        string? claimValue = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        get
+        {
+            var claimValue = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (claimValue == default)
+                throw new AuthException($"Invalid JWT");
 
-        if (claimValue == default)
-            return isRequired ? throw new Exception($"Invalid JWT") : default;
-
-        return Convert<Guid>(claimValue);
+            return Convert<Guid>(claimValue);
+        }
     }
 
     private static T? Convert<T>(string input)

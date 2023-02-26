@@ -1,7 +1,7 @@
 ﻿using Application.DTO.Auth;
+using Application.DTO.Common;
 using Application.DTO.User;
 using Application.Interfaces.Services;
-using Application.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +9,7 @@ namespace WebAPI.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("api/[controller]")]
+[Route("Api/[controller]")]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -20,13 +20,16 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<PaginatedList<UserBriefDto>>> Get([FromQuery] GetUsersDto query)
+    public async Task<PaginatedList<UserBriefDto>> Get([FromQuery] GetUsersDto query)
     {
         return await _userService.GetUsers(query);
     }
 
-    [HttpGet("{id}")]
-    public string Get(int id) => "value";
+    [HttpGet("{id:guid}")]
+    public async Task<UserDto> Get(Guid id)
+    {
+        return await _userService.GetUser(id);
+    }
 
     [AllowAnonymous]
     [HttpPost]
@@ -35,13 +38,15 @@ public class UserController : ControllerBase
         return await _userService.CreateUser(query);
     }
 
-    [HttpPut("{id}")]
-    public void Put(int id, [FromBody] string value)
+    [HttpPut("{id:guid}")]
+    public async void Put(Guid id, [FromBody] UpdateUserDto query)
     {
+        await _userService.UpdateUser(id, query);
     }
 
-    [HttpDelete("{id}")]
-    public void Delete(int id)
+    [HttpDelete("{id:guid}")]
+    public async void Delete(Guid id)
     {
+        await _userService.DeleteUser(id);
     }
 }

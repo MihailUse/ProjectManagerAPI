@@ -32,11 +32,6 @@ public class TimestampSaveChangesInterceptor : SaveChangesInterceptor
         {
             switch (entry.State)
             {
-                case EntityState.Deleted:
-                    entry.State = EntityState.Unchanged;
-                    entry.Entity.DeletedAt = dateTime;
-                    break;
-
                 case EntityState.Modified:
                     entry.Entity.UpdatedAt = dateTime;
                     break;

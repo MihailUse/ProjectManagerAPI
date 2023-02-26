@@ -1,11 +1,14 @@
 ﻿using Application.DTO.Auth;
+using Application.DTO.Common;
 using Application.DTO.User;
-using Application.Models;
 
 namespace Application.Interfaces.Services;
 
 public interface IUserService
 {
-    Task<AccessTokensDto> CreateUser(CreateUserDto createUser);
+    Task<UserDto> GetUser(Guid userId);
     Task<PaginatedList<UserBriefDto>> GetUsers(GetUsersDto getUsersDto);
+    Task<AccessTokensDto> CreateUser(CreateUserDto createUserDto);
+    Task UpdateUser(Guid userId, UpdateUserDto updateUserDto);
+    Task DeleteUser(Guid userId);
 }

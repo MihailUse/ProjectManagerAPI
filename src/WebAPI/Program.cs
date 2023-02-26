@@ -1,5 +1,6 @@
 using Application;
 using Application.Interfaces.Services;
+using FluentValidation.AspNetCore;
 using Infrastructure;
 using Infrastructure.Configs;
 using Infrastructure.Persistence;
@@ -24,6 +25,7 @@ public static class Program
         builder.Services.AddApplicationServices();
         builder.Services.AddInfrastructureServices(builder.Configuration);
 
+        builder.Services.AddFluentValidationAutoValidation();
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(SetupSwaggerAction);

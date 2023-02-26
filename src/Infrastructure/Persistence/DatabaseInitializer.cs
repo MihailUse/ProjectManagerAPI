@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain.Constants;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence;
@@ -19,17 +20,29 @@ public class DatabaseInitializer
 
     public void SeedData()
     {
-        if (_context.Statuses.Any())
-            return;
-
-        var statuses = new[]
+        if (!_context.Statuses.Any())
         {
-            new Status("TODO"),
-            new Status("In Processing"),
-            new Status("Done"),
-        };
+            var statuses = new[]
+            {
+                new Status(Statuses.Todo),
+                new Status(Statuses.InProcessing),
+                new Status(Statuses.Done),
+            };
 
-        _context.Statuses.AddRange(statuses);
+            _context.Statuses.AddRange(statuses);
+        }
+
+        if (!_context.Roles.Any())
+        {
+            var roles = new[]
+            {
+                new Role(Roles.Owner),
+                new Role(Roles.MemberShip)
+            };
+
+            _context.Roles.AddRange(roles);
+        }
+
         _context.SaveChanges();
     }
 }

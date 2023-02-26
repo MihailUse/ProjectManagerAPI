@@ -1,4 +1,4 @@
-﻿using Application.Models;
+﻿using Application.DTO.Common;
 
 namespace Application.DTO.User;
 

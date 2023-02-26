@@ -17,6 +17,7 @@ public static class ConfigureServices
 
         // add services
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IProjectService, ProjectService>();
 
         return services;
     }
