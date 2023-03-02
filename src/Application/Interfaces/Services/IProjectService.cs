@@ -5,9 +5,9 @@ namespace Application.Interfaces.Services;
 
 public interface IProjectService
 {
-    Task<ProjectDto> GetProject(Guid projectId);
-    Task<PaginatedList<ProjectBriefDto>> GetProjects(GetProjectsDto getProjectsDto);
-    Task<Guid> CreateProject(CreateProjectDto createProjectDto);
-    Task UpdateProject(Guid projectId, UpdateProjectDto updateProjectDto);
-    Task DeleteProject(Guid projectId);
+    Task<ProjectDto> GetById(Guid id);
+    Task<PaginatedList<ProjectBriefDto>> GetList(SearchProjectDto searchDto);
+    Task<Guid> Create(CreateProjectDto createDto);
+    Task Update(Guid id, UpdateProjectDto updateDto);
+    Task Delete(Guid id);
 }

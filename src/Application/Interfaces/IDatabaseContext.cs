@@ -11,7 +11,6 @@ public interface IDatabaseContext
     DbSet<MemberShip> MemberShips { get; }
     DbSet<Comment> Comments { get; }
     DbSet<Assignee> Assignees { get; }
-    DbSet<Role> Roles { get; }
     DbSet<Status> Statuses { get; }
     DbSet<Domain.Entities.Task> Tasks { get; }
     DbSet<Team> Teams { get; }

@@ -2,7 +2,7 @@
 
 namespace Application.DTO.User;
 
-public record GetUsersDto : PaginatedListQuery
+public record SearchUserDto : PaginatedListQuery
 {
     public string? Search { get; set; }
 }

@@ -8,23 +8,25 @@ namespace WebAPI.Services;
 public class CurrentUserService : ICurrentUserService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly Guid _sessionId;
 
-    public CurrentUserService(IHttpContextAccessor httpContextAccessor)
+    public CurrentUserService(IHttpContextAccessor httpContextAccessor, IIdentityService identityService)
     {
         _httpContextAccessor = httpContextAccessor;
+
+        var sessionIdString = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.PrimarySid);
+        if (sessionIdString == default)
+            throw new AuthException($"Invalid JWT");
+
+        var userIdString = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userIdString == default)
+            throw new AuthException($"Invalid JWT");
+
+        _sessionId = Convert<Guid>(sessionIdString);
+        UserId = Convert<Guid>(userIdString);
     }
 
-    public Guid UserId
-    {
-        get
-        {
-            var claimValue = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (claimValue == default)
-                throw new AuthException($"Invalid JWT");
-
-            return Convert<Guid>(claimValue);
-        }
-    }
+    public Guid UserId { get; }
 
     private static T? Convert<T>(string input)
     {

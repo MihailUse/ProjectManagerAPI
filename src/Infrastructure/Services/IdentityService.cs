@@ -21,21 +21,21 @@ public enum TokenType
 
 public class IdentityService : IIdentityService
 {
-    private readonly IDatabaseContext _context;
+    private readonly IDatabaseContext _database;
     private readonly AuthConfig _authConfig;
     private readonly ImageGeneratorConfig _imageConfig;
     private readonly IHashGenerator _hashGenerator;
     private readonly IImageGenerator _imageGenerator;
 
     public IdentityService(
-        IDatabaseContext context,
+        IDatabaseContext database,
         IOptions<AuthConfig> authConfig,
         IOptions<ImageGeneratorConfig> imageConfig,
         IHashGenerator hashGenerator,
         IImageGenerator imageGenerator
     )
     {
-        _context = context;
+        _database = database;
         _authConfig = authConfig.Value;
         _imageConfig = imageConfig.Value;
         _hashGenerator = hashGenerator;
@@ -44,6 +44,10 @@ public class IdentityService : IIdentityService
 
     public async Task<AccessTokensDto> CreateUserAsync(string login, string password)
     {
+        var loginExists = await _database.Users.AnyAsync(x => x.Login == login);
+        if (loginExists)
+            throw new ConflictException("Login already exists");
+
         // create user
         var userSession = new UserSession();
         var avatar = _imageGenerator.GenerateImage(
@@ -63,15 +67,15 @@ public class IdentityService : IIdentityService
             }
         };
 
-        await _context.Users.AddAsync(user);
-        await _context.SaveChangesAsync();
+        await _database.Users.AddAsync(user);
+        await _database.SaveChangesAsync();
 
         return GenerateTokens(userSession);
     }
 
     public async Task<AccessTokensDto> AuthorizeAsync(string login, string password)
     {
-        var user = _context.Users.FirstOrDefault(x => x.Login == login);
+        var user = _database.Users.FirstOrDefault(x => x.Login == login);
         if (user == default)
             throw new NotFoundException("User not found");
 
@@ -79,8 +83,8 @@ public class IdentityService : IIdentityService
             throw new AuthenticationException();
 
         var userSession = new UserSession(user.Id);
-        await _context.UserSessions.AddAsync(userSession);
-        await _context.SaveChangesAsync();
+        await _database.UserSessions.AddAsync(userSession);
+        await _database.SaveChangesAsync();
 
         return GenerateTokens(userSession);
     }
@@ -107,27 +111,27 @@ public class IdentityService : IIdentityService
             throw new AuthException("Invalid token");
 
         // get refreshTokenId
-        var refreshTokenId = principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+        var refreshTokenId = principal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.PrimarySid)?.Value;
         if (refreshTokenId == default)
             throw new AuthException("Invalid token");
 
         // get session
-        var session = _context.UserSessions.FirstOrDefault(x
+        var session = _database.UserSessions.FirstOrDefault(x
             => x.RefreshTokenId == Guid.Parse(refreshTokenId) && x.IsActive);
         if (session == default)
             throw new AuthException("Session not found");
 
         // update RefreshTokenId
         session.RefreshTokenId = Guid.NewGuid();
-        _context.UserSessions.Update(session);
-        await _context.SaveChangesAsync();
+        _database.UserSessions.Update(session);
+        await _database.SaveChangesAsync();
 
         return GenerateTokens(session);
     }
 
     public async Task<bool> IsValidSession(Guid sessionId)
     {
-        return await _context.UserSessions.AnyAsync(x => x.Id == sessionId && x.IsActive);
+        return await _database.UserSessions.AnyAsync(x => x.Id == sessionId && x.IsActive);
     }
 
     private AccessTokensDto GenerateTokens(UserSession userSession)
@@ -135,14 +139,15 @@ public class IdentityService : IIdentityService
         // token claims
         var tokenClaims = new Claim[]
         {
-            new Claim(ClaimTypes.NameIdentifier, userSession.Id.ToString()),
+            new Claim(ClaimTypes.PrimarySid, userSession.Id.ToString()),
+            new Claim(ClaimTypes.NameIdentifier, userSession.UserId.ToString()),
             new Claim(JwtRegisteredClaimNames.Typ, TokenType.Access.ToString()),
         };
 
         // refresh tokens
         var refreshTokenClaims = new Claim[]
         {
-            new Claim(ClaimTypes.NameIdentifier, userSession.RefreshTokenId.ToString()),
+            new Claim(ClaimTypes.PrimarySid, userSession.RefreshTokenId.ToString()),
             new Claim(JwtRegisteredClaimNames.Typ, TokenType.Refresh.ToString()),
         };
 

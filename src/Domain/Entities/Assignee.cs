@@ -2,9 +2,9 @@
 
 public class Assignee
 {
-    public Guid UserId { get; set; }
     public Guid TaskId { get; set; }
+    public Guid MemberShipId { get; set; }
 
-    public User User { get; set; } = null!;
     public Task Task { get; set; } = null!;
-}
+    public MemberShip MemberShip { get; set; } = null!;
+} 

@@ -14,68 +14,69 @@ namespace Application.Services;
 internal class UserService : IUserService
 {
     private readonly IMapper _mapper;
-    private readonly IDatabaseContext _context;
+    private readonly IDatabaseContext _database;
     private readonly IIdentityService _identityService;
     private readonly IDatabaseFunctions _databaseFunctions;
     private readonly ICurrentUserService _currentUserService;
 
     public UserService(
         IMapper mapper,
-        IDatabaseContext context,
+        IDatabaseContext database,
         IIdentityService identityService,
         IDatabaseFunctions databaseFunctions,
         ICurrentUserService currentUserService
     )
     {
         _mapper = mapper;
-        _context = context;
+        _database = database;
         _identityService = identityService;
         _databaseFunctions = databaseFunctions;
         _currentUserService = currentUserService;
     }
 
-    public async Task<UserDto> GetUser(Guid userId)
+    public async Task<UserDto> GetById(Guid id)
     {
-        var user = await FindUser(userId);
+        var user = await FindUser(id);
         return _mapper.Map<UserDto>(user);
     }
 
-    public async Task<PaginatedList<UserBriefDto>> GetUsers(GetUsersDto getUsersDto)
+    public async Task<PaginatedList<UserBriefDto>> GetList(SearchUserDto searchDto)
     {
-        var query = string.IsNullOrEmpty(getUsersDto.Search)
-            ? _context.Users
-            : _context.Users.Where(x => _databaseFunctions.ILike(x.Login, $"%{getUsersDto.Search}%"));
+        IQueryable<User> query = _database.Users;
 
-        return await query.ProjectToPaginatedListAsync<UserBriefDto>(_mapper.ConfigurationProvider, getUsersDto);
+        if (!string.IsNullOrEmpty(searchDto.Search))
+            query = query.Where(x => _databaseFunctions.ILike(x.Login, $"%{searchDto.Search}%"));
+
+        return await query.ProjectToPaginatedListAsync<UserBriefDto>(_mapper.ConfigurationProvider, searchDto);
     }
 
-    public async Task<AccessTokensDto> CreateUser(CreateUserDto createUserDto)
+    public async Task<AccessTokensDto> Create(CreateUserDto createDto)
     {
-        return await _identityService.CreateUserAsync(createUserDto.Login, createUserDto.Password);
+        return await _identityService.CreateUserAsync(createDto.Login, createDto.Password);
     }
 
-    public async Task UpdateUser(Guid userId, UpdateUserDto updateUserDto)
+    public async Task Update(Guid id, UpdateUserDto updateDto)
     {
-        var user = await FindUser(userId);
-        user = _mapper.Map(updateUserDto, user);
+        var user = await FindUser(id);
+        user = _mapper.Map(updateDto, user);
 
-        _context.Users.Update(user);
-        await _context.SaveChangesAsync();
+        _database.Users.Update(user);
+        await _database.SaveChangesAsync();
     }
 
-    public async Task DeleteUser(Guid userId)
+    public async Task Delete(Guid id)
     {
-        if (_currentUserService.UserId != userId)
+        if (_currentUserService.UserId != id)
             throw new AccessDeniedException("No permission");
 
-        var user = await FindUser(userId);
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
+        var user = await FindUser(id);
+        _database.Users.Remove(user);
+        await _database.SaveChangesAsync();
     }
 
     private async Task<User> FindUser(Guid userId)
     {
-        var user = await _context.Users.FindAsync(userId);
+        var user = await _database.Users.FindAsync(userId);
         if (user == default)
             throw new NotFoundException("User not found");
 

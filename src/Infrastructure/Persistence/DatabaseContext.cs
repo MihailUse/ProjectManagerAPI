@@ -1,5 +1,7 @@
-﻿using Application.Interfaces;
+﻿using System.Reflection;
+using Application.Interfaces;
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
@@ -13,7 +15,6 @@ public class DatabaseContext : DbContext, IDatabaseContext
     public DbSet<MemberShip> MemberShips => Set<MemberShip>();
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<Assignee> Assignees => Set<Assignee>();
-    public DbSet<Role> Roles => Set<Role>();
     public DbSet<Status> Statuses => Set<Status>();
     public DbSet<Domain.Entities.Task> Tasks => Set<Domain.Entities.Task>();
     public DbSet<Team> Teams => Set<Team>();
@@ -28,8 +29,12 @@ public class DatabaseContext : DbContext, IDatabaseContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Assignee>().HasKey(x => new { x.UserId, x.TaskId });
-        modelBuilder.Entity<MemberShip>().HasKey(x => new { x.UserId, x.ProjectId });
+        modelBuilder.Entity<Assignee>().HasKey(x => new { x.TaskId, x.MemberShipId });
+        modelBuilder.HasPostgresEnum<Role>();
+
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+        base.OnModelCreating(modelBuilder);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

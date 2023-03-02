@@ -19,32 +19,32 @@ public class ProjectController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<PaginatedList<ProjectBriefDto>> Get([FromQuery] GetProjectsDto query)
+    public async Task<PaginatedList<ProjectBriefDto>> Get([FromQuery] SearchProjectDto query)
     {
-        return await _projectService.GetProjects(query);
+        return await _projectService.GetList(query);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<ProjectDto> Get(Guid id)
     {
-        return await _projectService.GetProject(id);
+        return await _projectService.GetById(id);
     }
 
     [HttpPost]
     public async Task<Guid> Post([FromBody] CreateProjectDto query)
     {
-        return await _projectService.CreateProject(query);
+        return await _projectService.Create(query);
     }
 
     [HttpPut("{id:guid}")]
-    public async void Put(Guid id, [FromBody] UpdateProjectDto query)
+    public async Task Put(Guid id, [FromBody] UpdateProjectDto query)
     {
-        await _projectService.UpdateProject(id, query);
+        await _projectService.Update(id, query);
     }
 
     [HttpDelete("{id:guid}")]
-    public async void Delete(Guid id)
+    public async Task Delete(Guid id)
     {
-        await _projectService.DeleteProject(id);
+        await _projectService.Delete(id);
     }
 }

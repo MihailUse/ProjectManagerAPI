@@ -20,7 +20,7 @@ public class AuthorizationMiddleware
         if (httpContext.User.Claims.Any())
         {
             var tokenType = httpContext.User.Claims.First(x => x.Type == JwtRegisteredClaimNames.Typ)?.Value;
-            var sessionId = httpContext.User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var sessionId = httpContext.User.Claims.First(x => x.Type == ClaimTypes.PrimarySid)?.Value;
             if (tokenType == default || sessionId == default)
                 throw new AuthException("Invalid token");
 

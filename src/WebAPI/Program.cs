@@ -76,6 +76,7 @@ public static class Program
         app.UseAuthorization();
 
         // add middlewares
+        app.UseErrorHandlerMiddleware();
         app.UseAuthorizationMiddleware();
 
         app.MapControllers();

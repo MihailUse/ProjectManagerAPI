@@ -20,33 +20,33 @@ public class UserController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<PaginatedList<UserBriefDto>> Get([FromQuery] GetUsersDto query)
+    public async Task<PaginatedList<UserBriefDto>> Get([FromQuery] SearchUserDto query)
     {
-        return await _userService.GetUsers(query);
+        return await _userService.GetList(query);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<UserDto> Get(Guid id)
     {
-        return await _userService.GetUser(id);
+        return await _userService.GetById(id);
     }
 
     [AllowAnonymous]
     [HttpPost]
     public async Task<AccessTokensDto> Post([FromBody] CreateUserDto query)
     {
-        return await _userService.CreateUser(query);
+        return await _userService.Create(query);
     }
 
     [HttpPut("{id:guid}")]
-    public async void Put(Guid id, [FromBody] UpdateUserDto query)
+    public async Task Put(Guid id, [FromBody] UpdateUserDto query)
     {
-        await _userService.UpdateUser(id, query);
+        await _userService.Update(id, query);
     }
 
     [HttpDelete("{id:guid}")]
-    public async void Delete(Guid id)
+    public async Task Delete(Guid id)
     {
-        await _userService.DeleteUser(id);
+        await _userService.Delete(id);
     }
 }

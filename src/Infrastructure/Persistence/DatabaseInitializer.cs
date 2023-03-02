@@ -32,17 +32,6 @@ public class DatabaseInitializer
             _context.Statuses.AddRange(statuses);
         }
 
-        if (!_context.Roles.Any())
-        {
-            var roles = new[]
-            {
-                new Role(Roles.Owner),
-                new Role(Roles.MemberShip)
-            };
-
-            _context.Roles.AddRange(roles);
-        }
-
         _context.SaveChanges();
     }
 }

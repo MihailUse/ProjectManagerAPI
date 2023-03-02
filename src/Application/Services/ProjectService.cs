@@ -5,8 +5,8 @@ using Application.Interfaces;
 using Application.Interfaces.Services;
 using Application.Mappings;
 using AutoMapper;
-using Domain.Constants;
 using Domain.Entities;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;
 
@@ -15,76 +15,89 @@ namespace Application.Services;
 public class ProjectService : IProjectService
 {
     private readonly IMapper _mapper;
-    private readonly IDatabaseContext _context;
+    private readonly IDatabaseContext _database;
     private readonly IDatabaseFunctions _databaseFunctions;
-    private readonly ICurrentUserService _currentUserService;
+    private readonly Guid _currentUserId;
 
     public ProjectService(
         IMapper mapper,
-        IDatabaseContext context,
+        IDatabaseContext database,
         IDatabaseFunctions databaseFunctions,
         ICurrentUserService currentUserService
     )
     {
         _mapper = mapper;
-        _context = context;
+        _database = database;
         _databaseFunctions = databaseFunctions;
-        _currentUserService = currentUserService;
+        _currentUserId = currentUserService.UserId;
     }
 
-    public async Task<ProjectDto> GetProject(Guid projectId)
+    public async Task<ProjectDto> GetById(Guid id)
     {
-        var project = await FindProject(projectId);
+        await CheckPermission(id, Role.MemberShip);
+        var project = await FindProject(id);
         return _mapper.Map<ProjectDto>(project);
     }
 
-    public async Task<PaginatedList<ProjectBriefDto>> GetProjects(GetProjectsDto getProjectsDto)
+    public async Task<PaginatedList<ProjectBriefDto>> GetList(SearchProjectDto searchDto)
     {
-        var query = string.IsNullOrEmpty(getProjectsDto.Search)
-            ? _context.Projects
-            : _context.Projects.Where(x => _databaseFunctions.ILike(x.Name, $"%{getProjectsDto.Search}%"));
+        var query = _database.Projects
+            .Where(x => x.Memberships.Any(m => m.UserId == _currentUserId));
 
-        return await query.ProjectToPaginatedListAsync<ProjectBriefDto>(_mapper.ConfigurationProvider, getProjectsDto);
+        if (!string.IsNullOrEmpty(searchDto.Search))
+            query = query.Where(x => _databaseFunctions.ILike(x.Name, $"%{searchDto.Search}%"));
+
+        return await query.ProjectToPaginatedListAsync<ProjectBriefDto>(_mapper.ConfigurationProvider, searchDto);
     }
 
-    public async Task<Guid> CreateProject(CreateProjectDto createProjectDto)
+    public async Task<Guid> Create(CreateProjectDto createDto)
     {
-        var project = _mapper.Map<Project>(createProjectDto);
-        await _context.Projects.AddAsync(project);
-        await _context.SaveChangesAsync();
+        var project = _mapper.Map<Project>(createDto);
+        project.Memberships = new List<MemberShip>()
+        {
+            new MemberShip(_currentUserId, Role.Owner)
+        };
+
+        await _database.Projects.AddAsync(project);
+        await _database.SaveChangesAsync();
 
         return project.Id;
     }
 
-    public async Task UpdateProject(Guid projectId, UpdateProjectDto updateProjectDto)
+    public async Task Update(Guid id, UpdateProjectDto updateDto)
     {
-        var hasPermissions = await _context.MemberShips.AnyAsync(x
-            => x.UserId == _currentUserService.UserId && x.Role.Name == Roles.Owner);
-        if (!hasPermissions)
-            throw new AccessDeniedException("No permission");
+        await CheckPermission(id, Role.Administrator);
 
-        var project = await FindProject(projectId);
-        project = _mapper.Map(updateProjectDto, project);
+        var project = await FindProject(id);
+        project = _mapper.Map(updateDto, project);
 
-        _context.Projects.Update(project);
-        await _context.SaveChangesAsync();
+        _database.Projects.Update(project);
+        await _database.SaveChangesAsync();
     }
 
-    public async Task DeleteProject(Guid projectId)
+    public async Task Delete(Guid id)
     {
-        var isOwner = await _context.MemberShips.AnyAsync(x
-            => x.UserId == _currentUserService.UserId && x.Role.Name == Roles.Owner);
+        await CheckPermission(id, Role.Owner);
+
+        var project = await FindProject(id);
+        _database.Projects.Remove(project);
+        await _database.SaveChangesAsync();
+    }
+
+    private async Task CheckPermission(Guid projectId, Role role)
+    {
+        var isOwner = await _database.MemberShips.AnyAsync(x =>
+            x.UserId == _currentUserId &&
+            x.ProjectId == projectId &&
+            x.Role <= role);
+
         if (!isOwner)
             throw new AccessDeniedException("No permission");
-
-        var project = await FindProject(projectId);
-        _context.Projects.Remove(project);
-        await _context.SaveChangesAsync();
     }
 
     private async Task<Project> FindProject(Guid projectId)
     {
-        var project = await _context.Projects.FindAsync(projectId);
+        var project = await _database.Projects.FindAsync(projectId);
         if (project == default)
             throw new NotFoundException("Project not found");
 
