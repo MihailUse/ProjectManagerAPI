@@ -20,17 +20,12 @@ public static class ConfigureServices
         if (authSection == null)
             throw new InvalidOperationException("AuthConfig not found.");
 
-        var imageGeneratorSection = configuration.GetSection(AuthConfig.Position);
-        if (imageGeneratorSection == null)
-            throw new InvalidOperationException("ImageGeneratorConfig not found.");
-
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         if (connectionString == null)
             throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
         // Configure
         services.Configure<AuthConfig>(authSection);
-        services.Configure<ImageGeneratorConfig>(imageGeneratorSection);
 
         // services 
         services.AddDbContext<DatabaseContext>(options =>

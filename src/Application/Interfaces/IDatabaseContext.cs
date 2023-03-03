@@ -14,6 +14,8 @@ public interface IDatabaseContext
     DbSet<Status> Statuses { get; }
     DbSet<Domain.Entities.Task> Tasks { get; }
     DbSet<Team> Teams { get; }
+    DbSet<Attach> Attaches { get; }
+    DbSet<ProjectAttach> ProjectAttaches { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

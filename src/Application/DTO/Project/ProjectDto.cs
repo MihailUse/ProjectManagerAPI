@@ -5,8 +5,8 @@ namespace Application.DTO.Project;
 public class ProjectDto : Timestamp
 {
     public Guid Id { get; set; }
+    public Guid LogoId { get; set; }
     public string Name { get; set; } = null!;
-    public byte[]? Logo { get; set; }
     public string? Description { get; set; }
 
     public int TaskCount { get; set; }

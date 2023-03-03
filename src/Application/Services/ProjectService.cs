@@ -18,17 +18,20 @@ public class ProjectService : IProjectService
     private readonly IDatabaseContext _database;
     private readonly IDatabaseFunctions _databaseFunctions;
     private readonly Guid _currentUserId;
+    private readonly IAttachService _attachService;
 
     public ProjectService(
         IMapper mapper,
         IDatabaseContext database,
         IDatabaseFunctions databaseFunctions,
-        ICurrentUserService currentUserService
+        ICurrentUserService currentUserService,
+        IAttachService attachService
     )
     {
         _mapper = mapper;
         _database = database;
         _databaseFunctions = databaseFunctions;
+        _attachService = attachService;
         _currentUserId = currentUserService.UserId;
     }
 
@@ -53,6 +56,7 @@ public class ProjectService : IProjectService
     public async Task<Guid> Create(CreateProjectDto createDto)
     {
         var project = _mapper.Map<Project>(createDto);
+        project.LogoId = await _attachService.GenerateImage();
         project.Memberships = new List<MemberShip>()
         {
             new MemberShip(_currentUserId, Role.Owner)
@@ -69,8 +73,14 @@ public class ProjectService : IProjectService
         await CheckPermission(id, Role.Administrator);
 
         var project = await FindProject(id);
-        project = _mapper.Map(updateDto, project);
+        if (project.LogoId != updateDto.LogoId)
+        {
+            var attachExists = await _database.Attaches.AnyAsync(x => x.Id == updateDto.LogoId);
+            if (!attachExists)
+                throw new NotFoundException("Attach not found");
+        }
 
+        project = _mapper.Map(updateDto, project);
         _database.Projects.Update(project);
         await _database.SaveChangesAsync();
     }

@@ -2,7 +2,7 @@
 
 public interface IImageGenerator
 {
-    byte[] GenerateImage(
+    Stream GenerateImage(
         int pixelsInWidth,
         int pixelsInHeight,
         int countColor,

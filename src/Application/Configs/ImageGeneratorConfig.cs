@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Configs;
+﻿namespace Application.Configs;
 
 public class ImageGeneratorConfig
 {

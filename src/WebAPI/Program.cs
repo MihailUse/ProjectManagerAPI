@@ -22,7 +22,7 @@ public static class Program
         // Add services to the container.
         builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-        builder.Services.AddApplicationServices();
+        builder.Services.AddApplicationServices(builder.Configuration);
         builder.Services.AddInfrastructureServices(builder.Configuration);
 
         builder.Services.AddFluentValidationAutoValidation();

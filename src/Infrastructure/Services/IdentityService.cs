@@ -23,54 +23,17 @@ public class IdentityService : IIdentityService
 {
     private readonly IDatabaseContext _database;
     private readonly AuthConfig _authConfig;
-    private readonly ImageGeneratorConfig _imageConfig;
     private readonly IHashGenerator _hashGenerator;
-    private readonly IImageGenerator _imageGenerator;
 
     public IdentityService(
         IDatabaseContext database,
         IOptions<AuthConfig> authConfig,
-        IOptions<ImageGeneratorConfig> imageConfig,
-        IHashGenerator hashGenerator,
-        IImageGenerator imageGenerator
+        IHashGenerator hashGenerator
     )
     {
         _database = database;
         _authConfig = authConfig.Value;
-        _imageConfig = imageConfig.Value;
         _hashGenerator = hashGenerator;
-        _imageGenerator = imageGenerator;
-    }
-
-    public async Task<AccessTokensDto> CreateUserAsync(string login, string password)
-    {
-        var loginExists = await _database.Users.AnyAsync(x => x.Login == login);
-        if (loginExists)
-            throw new ConflictException("Login already exists");
-
-        // create user
-        var userSession = new UserSession();
-        var avatar = _imageGenerator.GenerateImage(
-            _imageConfig.PixelsInWidth,
-            _imageConfig.PixelsInHeight,
-            _imageConfig.CountColor,
-            _imageConfig.WhiteFrequency
-        );
-        var user = new User()
-        {
-            Login = login,
-            Avatar = avatar,
-            PasswordHash = _hashGenerator.GetHash(password),
-            UserSessions = new List<UserSession>()
-            {
-                userSession
-            }
-        };
-
-        await _database.Users.AddAsync(user);
-        await _database.SaveChangesAsync();
-
-        return GenerateTokens(userSession);
     }
 
     public async Task<AccessTokensDto> AuthorizeAsync(string login, string password)
@@ -134,7 +97,7 @@ public class IdentityService : IIdentityService
         return await _database.UserSessions.AnyAsync(x => x.Id == sessionId && x.IsActive);
     }
 
-    private AccessTokensDto GenerateTokens(UserSession userSession)
+    public AccessTokensDto GenerateTokens(UserSession userSession)
     {
         // token claims
         var tokenClaims = new Claim[]

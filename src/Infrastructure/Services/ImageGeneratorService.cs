@@ -16,7 +16,7 @@ public class ImageGeneratorService : IImageGenerator
     /// <param name="countColor"></param>
     /// <param name="whiteFrequency"></param>
     /// <returns></returns>
-    public byte[] GenerateImage(
+    public Stream GenerateImage(
         int pixelsInWidth,
         int pixelsInHeight,
         int countColor,
@@ -38,9 +38,9 @@ public class ImageGeneratorService : IImageGenerator
             image[horizontalIndex - x, y] = currentColor;
         }
 
-        using var ms = new MemoryStream();
-        image.SaveAsBmp(ms);
-        return ms.ToArray();
+        var ms = new MemoryStream();
+        image.SaveAsJpeg(ms);
+        return ms;
     }
 
     /// <summary>

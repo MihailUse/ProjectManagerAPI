@@ -16,7 +16,7 @@ public class CurrentUserService : ICurrentUserService
 
         var sessionIdString = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.PrimarySid);
         if (sessionIdString == default)
-            throw new AuthException($"Invalid JWT");
+            return;
 
         var userIdString = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userIdString == default)

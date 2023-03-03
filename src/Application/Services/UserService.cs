@@ -7,6 +7,7 @@ using Application.Interfaces.Services;
 using Application.Mappings;
 using AutoMapper;
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;
 
 namespace Application.Services;
@@ -18,13 +19,17 @@ internal class UserService : IUserService
     private readonly IIdentityService _identityService;
     private readonly IDatabaseFunctions _databaseFunctions;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IAttachService _attachService;
+    private readonly IHashGenerator _hashGenerator;
 
     public UserService(
         IMapper mapper,
         IDatabaseContext database,
         IIdentityService identityService,
         IDatabaseFunctions databaseFunctions,
-        ICurrentUserService currentUserService
+        ICurrentUserService currentUserService,
+        IAttachService attachService,
+        IHashGenerator hashGenerator
     )
     {
         _mapper = mapper;
@@ -32,6 +37,8 @@ internal class UserService : IUserService
         _identityService = identityService;
         _databaseFunctions = databaseFunctions;
         _currentUserService = currentUserService;
+        _attachService = attachService;
+        _hashGenerator = hashGenerator;
     }
 
     public async Task<UserDto> GetById(Guid id)
@@ -52,14 +59,40 @@ internal class UserService : IUserService
 
     public async Task<AccessTokensDto> Create(CreateUserDto createDto)
     {
-        return await _identityService.CreateUserAsync(createDto.Login, createDto.Password);
+        var loginExists = await _database.Users.AnyAsync(x => x.Login == createDto.Login);
+        if (loginExists)
+            throw new ConflictException("Login already exists");
+
+        // create user
+        var userSession = new UserSession();
+        var user = new User()
+        {
+            Login = createDto.Login,
+            AvatarId = await _attachService.GenerateImage(),
+            PasswordHash = _hashGenerator.GetHash(createDto.Password),
+            UserSessions = new List<UserSession>()
+            {
+                userSession
+            }
+        };
+
+        await _database.Users.AddAsync(user);
+        await _database.SaveChangesAsync();
+        return _identityService.GenerateTokens(userSession);
     }
 
     public async Task Update(Guid id, UpdateUserDto updateDto)
     {
         var user = await FindUser(id);
-        user = _mapper.Map(updateDto, user);
 
+        if (user.AvatarId != updateDto.AvatarId)
+        {
+            var attachExists = await _database.Attaches.AnyAsync(x => x.Id == updateDto.AvatarId);
+            if (!attachExists)
+                throw new NotFoundException("Attach not found");
+        }
+
+        user = _mapper.Map(updateDto, user);
         _database.Users.Update(user);
         await _database.SaveChangesAsync();
     }

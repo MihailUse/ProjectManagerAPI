@@ -18,6 +18,8 @@ public class DatabaseContext : DbContext, IDatabaseContext
     public DbSet<Status> Statuses => Set<Status>();
     public DbSet<Domain.Entities.Task> Tasks => Set<Domain.Entities.Task>();
     public DbSet<Team> Teams => Set<Team>();
+    public DbSet<Attach> Attaches => Set<Attach>();
+    public DbSet<ProjectAttach> ProjectAttaches => Set<ProjectAttach>();
 
     private readonly SaveChangesInterceptor _saveChangesInterceptor;
 
@@ -30,6 +32,7 @@ public class DatabaseContext : DbContext, IDatabaseContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Assignee>().HasKey(x => new { x.TaskId, x.MemberShipId });
+        modelBuilder.Entity<ProjectAttach>().HasKey(x => new { x.ProjectId, x.AttachId });
         modelBuilder.HasPostgresEnum<Role>();
 
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
