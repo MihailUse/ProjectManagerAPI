@@ -32,6 +32,8 @@ public static class ConfigureServices
         services.AddScoped<IStatusService, StatusService>();
         services.AddScoped<IMemberShipService, MemberShipService>();
         services.AddScoped<IAttachService, AttachService>();
+        services.AddScoped<ITeamService, TeamService>();
+        services.AddScoped<ICommentService, CommentService>();
 
         return services;
     }

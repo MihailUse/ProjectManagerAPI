@@ -166,12 +166,14 @@ public class TaskService : ITaskService
 
     private async Task CheckPermission(Guid taskId, Role role)
     {
-        var hasPermission = await _database.MemberShips.AnyAsync(x =>
-            x.Project.Tasks.Any(t => t.Id == taskId) &&
-            x.UserId == _currentUserId &&
-            x.Role <= role);
+        var task = await _database.Tasks
+            .Include(x => x.Project.Memberships.Where(m => m.UserId == _currentUserId))
+            .FirstOrDefaultAsync(x => x.Id == taskId);
+        if (task == default)
+            throw new NotFoundException("Task not found");
 
-        if (!hasPermission)
+        var currentMemberShip = task.Project.Memberships.FirstOrDefault();
+        if (currentMemberShip == default || currentMemberShip.Role > role)
             throw new AccessDeniedException("No permission");
     }
 }

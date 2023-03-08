@@ -96,12 +96,14 @@ public class ProjectService : IProjectService
 
     private async Task CheckPermission(Guid projectId, Role role)
     {
-        var isOwner = await _database.MemberShips.AnyAsync(x =>
-            x.UserId == _currentUserId &&
-            x.ProjectId == projectId &&
-            x.Role <= role);
+        var project = await _database.Projects
+            .Include(x => x.Memberships.Where(m => m.UserId == _currentUserId))
+            .FirstOrDefaultAsync(x => x.Id == projectId);
+        if (project == default)
+            throw new NotFoundException("Project not found");
 
-        if (!isOwner)
+        var currentMemberShip = project.Memberships.FirstOrDefault();
+        if (currentMemberShip == default || currentMemberShip.Role > role)
             throw new AccessDeniedException("No permission");
     }
 

@@ -29,7 +29,6 @@ public class MappingProfile : Profile
         // MemberShip
         CreateProjection<MemberShip, MemberShipDto>();
 
-
         // Task
         CreateProjection<Task, TaskBriefDto>()
             .ForMember(d => d.Status, m => m.MapFrom(s => s.Status.Name))
@@ -66,6 +65,10 @@ public class MappingProfile : Profile
         CreateMap<CreateTaskDto, Task>();
         CreateMap<UpdateTaskDto, Task>();
 
+        // Comment
+        CreateMap<CreateCommentDto, Comment>();
+        CreateMap<UpdateCommentDto, Comment>();
+
         // Status
         CreateMap<CreateStatusDto, Status>();
         CreateMap<UpdateStatusDto, Status>();
@@ -74,6 +77,8 @@ public class MappingProfile : Profile
         // Team
         CreateMap<Team, TeamDto>();
         CreateMap<Team, TeamBriefDto>();
+        CreateMap<CreateTeamDto, Team>();
+        CreateMap<UpdateTeamDto, Team>();
 
         #endregion
     }

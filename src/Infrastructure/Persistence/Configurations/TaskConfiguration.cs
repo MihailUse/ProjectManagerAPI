@@ -8,7 +8,6 @@ public class TaskConfiguration : IEntityTypeConfiguration<Task>
 {
     public void Configure(EntityTypeBuilder<Task> builder)
     {
-        builder.Property(x => x.Title)
-            .HasMaxLength(32);
+        builder.Property(x => x.Title).HasMaxLength(32);
     }
 }

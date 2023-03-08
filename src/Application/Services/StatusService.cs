@@ -100,12 +100,14 @@ public class StatusService : IStatusService
         if (projectId == default)
             throw new AccessDeniedException("No permission");
 
-        var hasPermission = await _database.MemberShips.AnyAsync(x =>
-            x.ProjectId == projectId &&
-            x.UserId == _currentUserId &&
-            x.Role <= role);
+        var status = await _database.Statuses
+            .Include(x => x.Project!.Memberships.Where(m => m.UserId == _currentUserId))
+            .FirstOrDefaultAsync(x => x.ProjectId == projectId);
+        if (status == default)
+            throw new NotFoundException("Status not found");
 
-        if (!hasPermission)
+        var currentMemberShip = status.Project?.Memberships.FirstOrDefault();
+        if (currentMemberShip == default || currentMemberShip.Role > role)
             throw new AccessDeniedException("No permission");
     }
 }
