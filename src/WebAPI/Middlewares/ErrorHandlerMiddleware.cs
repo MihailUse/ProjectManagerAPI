@@ -1,5 +1,4 @@
 using Application.Exceptions;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Middlewares;
@@ -7,10 +6,12 @@ namespace WebAPI.Middlewares;
 public class ErrorHandlerMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly ILogger _logger;
 
-    public ErrorHandlerMiddleware(RequestDelegate next)
+    public ErrorHandlerMiddleware(RequestDelegate next, ILoggerFactory loggerFactory)
     {
         _next = next;
+        _logger = loggerFactory.CreateLogger<ErrorHandlerMiddleware>();
     }
 
     public async Task Invoke(HttpContext httpContext)
@@ -21,14 +22,24 @@ public class ErrorHandlerMiddleware
         }
         catch (Exception e)
         {
-            ActionResult result = e switch
+            var result = e switch
             {
                 InvalidOperationException => new BadRequestObjectResult(e.Message),
-                AccessDeniedException => new ForbidResult(JwtBearerDefaults.AuthenticationScheme),
+                AccessDeniedException => new UnauthorizedObjectResult(e.Message)
+                    { StatusCode = StatusCodes.Status403Forbidden },
                 NotFoundException => new NotFoundObjectResult(e.Message),
                 ConflictException => new ConflictObjectResult(e.Message),
-                _ => new StatusCodeResult(StatusCodes.Status500InternalServerError)
+                _ => new ObjectResult(null) { StatusCode = StatusCodes.Status500InternalServerError }
             };
+
+            if (result.StatusCode == StatusCodes.Status500InternalServerError)
+                _logger.Log(
+                    LogLevel.Error,
+                    "Request {Method} {Url} Error: {Error}",
+                    httpContext.Request.Method,
+                    httpContext.Request.Path.Value,
+                    e.Message
+                );
 
             await result.ExecuteResultAsync(new ActionContext
             {
