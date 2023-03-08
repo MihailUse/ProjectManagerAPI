@@ -18,7 +18,7 @@ public class AttachController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<Guid> Create([FromBody] IFormFile file)
+    public async Task<Guid> Create(IFormFile file)
     {
         var attach = new Attach()
         {
