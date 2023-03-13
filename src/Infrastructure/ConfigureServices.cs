@@ -39,7 +39,6 @@ public static class ConfigureServices
         services.AddSingleton<SaveChangesInterceptor, TimestampSaveChangesInterceptor>();
         services.AddSingleton<IImageGenerator, ImageGeneratorService>();
         services.AddSingleton<IHashGenerator, HashGeneratorService>();
-        services.AddSingleton<IDatabaseFunctions, DatabaseFunctions>();
 
         return services;
     }

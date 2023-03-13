@@ -16,21 +16,18 @@ public class ProjectService : IProjectService
 {
     private readonly IMapper _mapper;
     private readonly IDatabaseContext _database;
-    private readonly IDatabaseFunctions _databaseFunctions;
     private readonly Guid _currentUserId;
     private readonly IAttachService _attachService;
 
     public ProjectService(
         IMapper mapper,
         IDatabaseContext database,
-        IDatabaseFunctions databaseFunctions,
         ICurrentUserService currentUserService,
         IAttachService attachService
     )
     {
         _mapper = mapper;
         _database = database;
-        _databaseFunctions = databaseFunctions;
         _attachService = attachService;
         _currentUserId = currentUserService.UserId;
     }
@@ -48,7 +45,7 @@ public class ProjectService : IProjectService
             .Where(x => x.Memberships.Any(m => m.UserId == _currentUserId));
 
         if (!string.IsNullOrEmpty(searchDto.Search))
-            query = query.Where(x => _databaseFunctions.ILike(x.Name, $"%{searchDto.Search}%"));
+            query = query.Where(x => EF.Functions.ILike(x.Name, $"%{searchDto.Search}%"));
 
         return await query.ProjectToPaginatedListAsync<ProjectBriefDto>(_mapper.ConfigurationProvider, searchDto);
     }

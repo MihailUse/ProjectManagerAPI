@@ -16,19 +16,16 @@ public class MemberShipService : IMemberShipService
 {
     private readonly IMapper _mapper;
     private readonly IDatabaseContext _database;
-    private readonly IDatabaseFunctions _databaseFunctions;
     private readonly Guid _currentUserId;
 
     public MemberShipService(
         IMapper mapper,
         IDatabaseContext database,
-        IDatabaseFunctions databaseFunctions,
         ICurrentUserService currentUserService
     )
     {
         _mapper = mapper;
         _database = database;
-        _databaseFunctions = databaseFunctions;
         _currentUserId = currentUserService.UserId;
     }
 
@@ -41,7 +38,7 @@ public class MemberShipService : IMemberShipService
             query = query.Where(x => x.Role == searchDto.Role);
 
         if (!string.IsNullOrEmpty(searchDto.SearchByUserName))
-            query = query.Where(x => _databaseFunctions.ILike(x.User.Login, $"%{searchDto.SearchByUserName}%"));
+            query = query.Where(x => EF.Functions.ILike(x.User.Login, $"%{searchDto.SearchByUserName}%"));
 
         return await query.ProjectToPaginatedListAsync<MemberShipDto>(_mapper.ConfigurationProvider, searchDto);
     }

@@ -16,19 +16,16 @@ public class StatusService : IStatusService
 {
     private readonly IMapper _mapper;
     private readonly IDatabaseContext _database;
-    private readonly IDatabaseFunctions _databaseFunctions;
     private readonly Guid _currentUserId;
 
     public StatusService(
         IMapper mapper,
         IDatabaseContext database,
-        IDatabaseFunctions databaseFunctions,
         ICurrentUserService currentUserService
     )
     {
         _mapper = mapper;
         _database = database;
-        _databaseFunctions = databaseFunctions;
         _currentUserId = currentUserService.UserId;
     }
 
@@ -38,7 +35,7 @@ public class StatusService : IStatusService
             .Where(x => x.ProjectId == null || x.ProjectId == searchDto.ProjectId);
 
         if (!string.IsNullOrEmpty(searchDto.Search))
-            query = query.Where(x => _databaseFunctions.ILike(x.Name, $"%{searchDto.Search}%"));
+            query = query.Where(x => EF.Functions.ILike(x.Name, $"%{searchDto.Search}%"));
 
         return await query.ProjectToPaginatedListAsync<StatusDto>(_mapper.ConfigurationProvider, searchDto);
     }

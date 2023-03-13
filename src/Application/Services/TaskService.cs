@@ -18,19 +18,16 @@ public class TaskService : ITaskService
 {
     private readonly IMapper _mapper;
     private readonly IDatabaseContext _database;
-    private readonly IDatabaseFunctions _databaseFunctions;
     private readonly Guid _currentUserId;
 
     public TaskService(
         IMapper mapper,
         IDatabaseContext database,
-        IDatabaseFunctions databaseFunctions,
         ICurrentUserService currentUserService
     )
     {
         _mapper = mapper;
         _database = database;
-        _databaseFunctions = databaseFunctions;
         _currentUserId = currentUserService.UserId;
     }
 
@@ -52,7 +49,7 @@ public class TaskService : ITaskService
             .Where(x => x.Project.Memberships.Any(m => m.UserId == _currentUserId));
 
         if (!string.IsNullOrEmpty(searchDto.Search))
-            query = query.Where(x => _databaseFunctions.ILike(x.Title, $"%{searchDto.Search}%"));
+            query = query.Where(x => EF.Functions.ILike(x.Title, $"%{searchDto.Search}%"));
 
         if (searchDto.StatusId != default)
             query = query.Where(x => x.StatusId == searchDto.StatusId);

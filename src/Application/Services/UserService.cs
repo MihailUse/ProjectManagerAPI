@@ -17,7 +17,6 @@ internal class UserService : IUserService
     private readonly IMapper _mapper;
     private readonly IDatabaseContext _database;
     private readonly IIdentityService _identityService;
-    private readonly IDatabaseFunctions _databaseFunctions;
     private readonly ICurrentUserService _currentUserService;
     private readonly IAttachService _attachService;
     private readonly IHashGenerator _hashGenerator;
@@ -26,7 +25,6 @@ internal class UserService : IUserService
         IMapper mapper,
         IDatabaseContext database,
         IIdentityService identityService,
-        IDatabaseFunctions databaseFunctions,
         ICurrentUserService currentUserService,
         IAttachService attachService,
         IHashGenerator hashGenerator
@@ -35,7 +33,6 @@ internal class UserService : IUserService
         _mapper = mapper;
         _database = database;
         _identityService = identityService;
-        _databaseFunctions = databaseFunctions;
         _currentUserService = currentUserService;
         _attachService = attachService;
         _hashGenerator = hashGenerator;
@@ -52,7 +49,7 @@ internal class UserService : IUserService
         IQueryable<User> query = _database.Users;
 
         if (!string.IsNullOrEmpty(searchDto.Search))
-            query = query.Where(x => _databaseFunctions.ILike(x.Login, $"%{searchDto.Search}%"));
+            query = query.Where(x => EF.Functions.ILike(x.Login, $"%{searchDto.Search}%"));
 
         return await query.ProjectToPaginatedListAsync<UserBriefDto>(_mapper.ConfigurationProvider, searchDto);
     }
