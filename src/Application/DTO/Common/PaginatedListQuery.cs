@@ -2,6 +2,6 @@
 
 public record PaginatedListQuery
 {
-    public virtual int PageNumber { get; init; } = 1;
-    public virtual int PageSize { get; init; } = 20;
+    public int PageNumber { get; init; } = 1;
+    public int PageSize { get; init; } = 20;
 }

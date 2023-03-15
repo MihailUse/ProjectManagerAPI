@@ -1,13 +1,11 @@
 using Application.DTO.Common;
 using Application.DTO.MemberShip;
 using Application.Exceptions;
-using Application.Interfaces;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
-using Application.Mappings;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Enums;
-using Microsoft.EntityFrameworkCore;
 using Task = System.Threading.Tasks.Task;
 
 namespace Application.Services;
@@ -15,93 +13,77 @@ namespace Application.Services;
 public class MemberShipService : IMemberShipService
 {
     private readonly IMapper _mapper;
-    private readonly IDatabaseContext _database;
-    private readonly Guid _currentUserId;
+    private readonly IMemberShipRepository _repository;
+    private readonly IProjectService _projectService;
+    private readonly IUserService _userService;
 
     public MemberShipService(
         IMapper mapper,
-        IDatabaseContext database,
-        ICurrentUserService currentUserService
+        IMemberShipRepository repository,
+        IProjectService projectService,
+        IUserService userService
     )
     {
         _mapper = mapper;
-        _database = database;
-        _currentUserId = currentUserService.UserId;
+        _repository = repository;
+        _projectService = projectService;
+        _userService = userService;
     }
 
-    public async Task<PaginatedList<MemberShipDto>> GetList(SearchMemberShipDto searchDto)
+
+    private async Task<MemberShip> GetById(Guid id)
     {
-        var query = _database.MemberShips
-            .Where(x => x.ProjectId == searchDto.ProjectId);
-
-        if (searchDto.Role != default)
-            query = query.Where(x => x.Role == searchDto.Role);
-
-        if (!string.IsNullOrEmpty(searchDto.SearchByUserName))
-            query = query.Where(x => EF.Functions.ILike(x.User.Login, $"%{searchDto.SearchByUserName}%"));
-
-        return await query.ProjectToPaginatedListAsync<MemberShipDto>(_mapper.ConfigurationProvider, searchDto);
-    }
-
-    public async Task<Guid> Create(CreateMemberShipDto createDto)
-    {
-        await CheckPermission(createDto.ProjectId, Role.Administrator);
-
-        var memberShipExists = await _database.MemberShips
-            .AnyAsync(x => x.ProjectId == createDto.ProjectId && x.UserId == createDto.UserId);
-        if (memberShipExists)
-            throw new ConflictException("MemberShip already exists in project");
-
-        var projectExists = await _database.Projects.AnyAsync(x => x.Id == createDto.ProjectId);
-        if (!projectExists)
-            throw new NotFoundException("Project not found");
-
-        var userExists = await _database.Users.AnyAsync(x => x.Id == createDto.UserId);
-        if (!userExists)
-            throw new NotFoundException("User not found");
-
-        var memberShip = _mapper.Map<MemberShip>(createDto);
-        await _database.MemberShips.AddAsync(memberShip);
-        await _database.SaveChangesAsync();
-
-        return memberShip.Id;
-    }
-
-    public async Task Update(Guid id, UpdateMemberShipDto updateDto)
-    {
-        var memberShip = await FindMemberShip(id);
-        await CheckPermission(memberShip.ProjectId, Role.Administrator);
-
-        memberShip = _mapper.Map(updateDto, memberShip);
-        _database.MemberShips.Update(memberShip);
-        await _database.SaveChangesAsync();
-    }
-
-    public async Task Delete(Guid id)
-    {
-        var memberShip = await FindMemberShip(id);
-        await CheckPermission(memberShip.ProjectId, Role.Administrator);
-        _database.MemberShips.Remove(memberShip);
-        await _database.SaveChangesAsync();
-    }
-
-    private async Task<MemberShip> FindMemberShip(Guid id)
-    {
-        var memberShip = await _database.MemberShips.FindAsync(id);
+        var memberShip = await _repository.FindById(id);
         if (memberShip == default)
             throw new NotFoundException("MemberShip not found");
 
         return memberShip;
     }
 
-    private async Task CheckPermission(Guid projectId, Role role)
+    public async Task<List<Guid>> GetAssignedMemberShipIds(Guid projectId, List<Guid> userIds)
     {
-        var hasPermission = await _database.MemberShips.AnyAsync(x =>
-            x.ProjectId == projectId &&
-            x.UserId == _currentUserId &&
-            x.Role <= role);
+        var assignedMemberShipIds = await _repository.GetMemberShipIds(projectId, userIds);
+        if (assignedMemberShipIds.Count != userIds.Count)
+            throw new NotFoundException("Some memberships not found");
 
-        if (!hasPermission)
-            throw new AccessDeniedException("No permission");
+        return assignedMemberShipIds;
+    }
+
+    public async Task<PaginatedList<MemberShipDto>> GetList(Guid projectId, SearchMemberShipDto searchDto)
+    {
+        return await _repository.GetList(projectId, searchDto);
+    }
+
+    public async Task<Guid> Create(Guid projectId, CreateMemberShipDto createDto)
+    {
+        var memberShipExists = await _repository.CheckExists(projectId, createDto.UserId);
+        if (memberShipExists)
+            throw new ConflictException("MemberShip already exists in project");
+
+        await _projectService.CheckProjectExists(projectId);
+        await _userService.CheckUserExists(createDto.UserId);
+
+        var memberShip = _mapper.Map<MemberShip>(createDto);
+        await _repository.Add(memberShip);
+        return memberShip.Id;
+    }
+
+    public async Task Update(Guid id, UpdateMemberShipDto updateDto)
+    {
+        var memberShip = await GetById(id);
+        if (memberShip.Role == Role.Owner)
+            throw new InvalidOperationException("Can not update project owner");
+
+        memberShip = _mapper.Map(updateDto, memberShip);
+        await _repository.Update(memberShip);
+    }
+
+    public async Task Delete(Guid id)
+    {
+        var memberShip = await GetById(id);
+        if (memberShip.Role == Role.Owner)
+            throw new InvalidOperationException("Can not delete project owner");
+
+        await _repository.Remove(memberShip);
     }
 }

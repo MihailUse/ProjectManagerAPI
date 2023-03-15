@@ -2,26 +2,28 @@ using System.Reflection;
 using Application.Configs;
 using Application.Exceptions;
 using Application.Interfaces;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using Domain.Entities;
 using Microsoft.Extensions.Options;
+using Task = System.Threading.Tasks.Task;
 
 namespace Application.Services;
 
 public class AttachService : IAttachService
 {
     private readonly string _attachPath;
-    private readonly IDatabaseContext _database;
+    private readonly IAttachRepository _repository;
     private readonly IImageGenerator _imageGenerator;
     private readonly ImageGeneratorConfig _imageConfig;
 
     public AttachService(
-        IDatabaseContext database,
+        IAttachRepository repository,
         IImageGenerator imageGenerator,
         IOptions<ImageGeneratorConfig> imageConfig
     )
     {
-        _database = database;
+        _repository = repository;
         _imageGenerator = imageGenerator;
         _imageConfig = imageConfig.Value;
 
@@ -54,39 +56,44 @@ public class AttachService : IAttachService
             await imageStream.CopyToAsync(stream);
         }
 
-        await _database.Attaches.AddAsync(attach);
-        await _database.SaveChangesAsync();
+        await _repository.Add(attach);
         return attach.Id;
     }
 
     public async Task<Guid> SaveAttach(Attach attach, Stream fileStream)
     {
-        await _database.Attaches.AddAsync(attach);
-
+        attach.Id = Guid.NewGuid();
         var filePath = Path.Combine(_attachPath, attach.Id.ToString());
         using (var stream = File.Create(filePath))
             await fileStream.CopyToAsync(stream);
 
-        await _database.SaveChangesAsync();
+        await _repository.Add(attach);
         return attach.Id;
     }
 
-    public async Task<Attach> GetById(Guid attachId)
+    public async Task<Attach> GetById(Guid id)
     {
-        var attach = await _database.Attaches.FindAsync(attachId);
+        var attach = await _repository.FindById(id);
         if (attach == default)
             throw new NotFoundException("Attach not found");
 
         return attach;
     }
 
-    public FileStream GetStream(Guid attachId)
+    public FileStream GetStream(Guid id)
     {
-        var filePath = Path.Combine(_attachPath, attachId.ToString());
+        var filePath = Path.Combine(_attachPath, id.ToString());
 
         if (!File.Exists(filePath))
             throw new NotFoundException("File file not found");
 
         return new FileStream(filePath, FileMode.Open);
+    }
+
+    public async Task CheckAttachExists(Guid id)
+    {
+        var attachExists = await _repository.CheckExists(id);
+        if (!attachExists)
+            throw new NotFoundException("Attach not found");
     }
 }

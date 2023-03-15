@@ -5,8 +5,9 @@ namespace Application.Interfaces.Services;
 
 public interface IMemberShipService
 {
-    Task<PaginatedList<MemberShipDto>> GetList(SearchMemberShipDto searchDto);
-    Task<Guid> Create(CreateMemberShipDto createDto);
+    Task<List<Guid>> GetAssignedMemberShipIds(Guid projectId, List<Guid> userIds);
+    Task<PaginatedList<MemberShipDto>> GetList(Guid projectId, SearchMemberShipDto searchDto);
+    Task<Guid> Create(Guid projectId, CreateMemberShipDto createDto);
     Task Update(Guid id, UpdateMemberShipDto updateDto);
     Task Delete(Guid id);
 }

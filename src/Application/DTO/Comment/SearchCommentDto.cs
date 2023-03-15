@@ -4,5 +4,5 @@ namespace Application.DTO.Comment;
 
 public record SearchCommentDto : PaginatedListQuery
 {
-    public Guid TaskId { get; set; }
+    public string Search { get; set; }
 }

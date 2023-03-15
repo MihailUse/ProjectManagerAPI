@@ -35,11 +35,8 @@ public class AttachController : ControllerBase
     public async Task<FileResult> Get(Guid attachId, bool download = false)
     {
         var attach = await _attachService.GetById(attachId);
-        var fs = _attachService.GetStream(attach.Id);
+        var fileStream = _attachService.GetStream(attach.Id);
 
-        if (download)
-            return File(fs, attach.MimeType, attach.Name);
-
-        return File(fs, attach.MimeType);
+        return download ? File(fileStream, attach.MimeType, attach.Name) : File(fileStream, attach.MimeType);
     }
 }

@@ -7,5 +7,4 @@ public record SearchMemberShipDto : PaginatedListQuery
 {
     public Role? Role { get; set; }
     public string? SearchByUserName { get; set; }
-    public Guid ProjectId { get; set; }
 }

@@ -54,7 +54,6 @@ public class MappingProfile : Profile
         // Project
         CreateMap<CreateProjectDto, Project>();
         CreateMap<UpdateProjectDto, Project>();
-        CreateMap<Project, ProjectDto>();
 
         // MemberShip
         CreateMap<CreateMemberShipDto, MemberShip>();
@@ -76,7 +75,6 @@ public class MappingProfile : Profile
 
         // Team
         CreateMap<Team, TeamDto>();
-        CreateMap<Team, TeamBriefDto>();
         CreateMap<CreateTeamDto, Team>();
         CreateMap<UpdateTeamDto, Team>();
 

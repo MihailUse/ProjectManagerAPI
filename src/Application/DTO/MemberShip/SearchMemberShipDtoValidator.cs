@@ -8,7 +8,6 @@ public class SearchMemberShipDtoValidator : AbstractValidator<SearchMemberShipDt
     public SearchMemberShipDtoValidator()
     {
         Include(new PaginatedListQueryValidator());
-        RuleFor(x => x.ProjectId).Must(x => x != default);
         RuleFor(x => x.Role).IsInEnum();
     }
 }

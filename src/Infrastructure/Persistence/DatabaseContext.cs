@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Application.Interfaces;
 using Domain.Entities;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Infrastructure.Persistence;
 
-public class DatabaseContext : DbContext, IDatabaseContext
+public class DatabaseContext : DbContext
 {
     public DbSet<User> Users => Set<User>();
     public DbSet<UserSession> UserSessions => Set<UserSession>();

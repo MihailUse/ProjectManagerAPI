@@ -6,5 +6,4 @@ public record SearchTaskDto : PaginatedListQuery
 {
     public string? Search { get; set; }
     public Guid? StatusId { get; set; }
-    public Guid? ProjectId { get; set; }
 }

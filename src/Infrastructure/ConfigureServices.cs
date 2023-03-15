@@ -1,8 +1,10 @@
 ﻿using Application.Interfaces;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using Infrastructure.Configs;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Interceptors;
+using Infrastructure.Repositories;
 using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -32,13 +34,22 @@ public static class ConfigureServices
             options.UseNpgsql(connectionString, builder =>
                 builder.MigrationsAssembly(typeof(DatabaseContext).Assembly.FullName)));
 
-        services.AddScoped<IDatabaseContext>(x => x.GetRequiredService<DatabaseContext>());
         services.AddScoped<DatabaseInitializer>();
         services.AddScoped<IIdentityService, IdentityService>();
 
         services.AddSingleton<SaveChangesInterceptor, TimestampSaveChangesInterceptor>();
         services.AddSingleton<IImageGenerator, ImageGeneratorService>();
         services.AddSingleton<IHashGenerator, HashGeneratorService>();
+
+        // repositories
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IAttachRepository, AttachRepository>();
+        services.AddScoped<ICommentRepository, CommentRepository>();
+        services.AddScoped<ITaskRepository, TaskRepository>();
+        services.AddScoped<IStatusRepository, StatusRepository>();
+        services.AddScoped<IMemberShipRepository, MemberShipRepository>();
+        services.AddScoped<IProjectRepository, ProjectRepository>();
+        services.AddScoped<ITeamRepository, TeamRepository>();
 
         return services;
     }
