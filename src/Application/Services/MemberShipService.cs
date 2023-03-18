@@ -42,7 +42,7 @@ public class MemberShipService : IMemberShipService
 
     public async Task<List<Guid>> GetAssignedMemberShipIds(Guid projectId, List<Guid> userIds)
     {
-        var assignedMemberShipIds = await _repository.GetMemberShipIds(projectId, userIds);
+        var assignedMemberShipIds = await _repository.GetIdsByUserIds(projectId, userIds);
         if (assignedMemberShipIds.Count != userIds.Count)
             throw new NotFoundException("Some memberships not found");
 
@@ -52,6 +52,15 @@ public class MemberShipService : IMemberShipService
     public async Task<PaginatedList<MemberShipDto>> GetList(Guid projectId, SearchMemberShipDto searchDto)
     {
         return await _repository.GetList(projectId, searchDto);
+    }
+
+    public async Task<List<MemberShip>> GetListByIds(List<Guid> memberShipIds)
+    {
+        var memberShips = await _repository.GetByIds(memberShipIds);
+        if (memberShips.Count != memberShipIds.Count)
+            throw new NotFoundException("Some memberships not found");
+
+        return memberShips;
     }
 
     public async Task<Guid> Create(Guid projectId, CreateMemberShipDto createDto)

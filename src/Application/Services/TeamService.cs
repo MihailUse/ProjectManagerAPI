@@ -5,7 +5,6 @@ using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using AutoMapper;
 using Domain.Entities;
-// using Domain.Enums;
 using Task = System.Threading.Tasks.Task;
 
 namespace Application.Services;
@@ -14,17 +13,17 @@ public class TeamService : ITeamService
 {
     private readonly IMapper _mapper;
     private readonly ITeamRepository _repository;
-    private readonly IProjectService _projectService;
+    private readonly IMemberShipService _memberShipService;
 
     public TeamService(
         IMapper mapper,
         ITeamRepository repository,
-        IProjectService projectService
+        IMemberShipService memberShipService
     )
     {
         _mapper = mapper;
         _repository = repository;
-        _projectService = projectService;
+        _memberShipService = memberShipService;
     }
 
     public async Task<PaginatedList<TeamDto>> GetList(Guid projectId, SearchTeamDto searchDto)
@@ -34,10 +33,11 @@ public class TeamService : ITeamService
 
     public async Task<Guid> Create(Guid projectId, CreateTeamDto createDto)
     {
-        // await _projectService.CheckPermission(projectId, Role.Administrator);
-
         var team = _mapper.Map<Team>(createDto);
         team.ProjectId = projectId;
+
+        if (createDto.MemberShipIds.Count > 0)
+            team.MemberShips = await _memberShipService.GetListByIds(createDto.MemberShipIds);
 
         await _repository.Add(team);
         return team.Id;
@@ -45,18 +45,17 @@ public class TeamService : ITeamService
 
     public async Task Update(Guid id, UpdateTeamDto updateDto)
     {
-        // await _projectService.CheckPermission(projectId, Role.Administrator);
-
         var team = await FindTeam(id);
         team = _mapper.Map(updateDto, team);
+
+        if (updateDto.MemberShipIds.Count > 0)
+            team.MemberShips = await _memberShipService.GetListByIds(updateDto.MemberShipIds);
 
         await _repository.Update(team);
     }
 
     public async Task Delete(Guid id)
     {
-        // await _projectService.CheckPermission(projectId, Role.Administrator);
-
         var team = await FindTeam(id);
         await _repository.Remove(team);
     }

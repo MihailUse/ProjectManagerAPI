@@ -8,7 +8,8 @@ namespace Application.Interfaces.Repositories;
 public interface IMemberShipRepository
 {
     Task<MemberShip?> FindById(Guid id);
-    Task<List<Guid>> GetMemberShipIds(Guid projectId, List<Guid> userIds);
+    Task<List<MemberShip>> GetByIds(List<Guid> memberShipIds);
+    Task<List<Guid>> GetIdsByUserIds(Guid projectId, List<Guid> userIds);
     Task<PaginatedList<MemberShipDto>> GetList(Guid projectId, SearchMemberShipDto searchDto);
     Task Add(MemberShip memberShip);
     Task Update(MemberShip memberShip);
