@@ -64,6 +64,10 @@ public class TaskService : ITaskService
     public async Task Update(Guid id, UpdateTaskDto updateDto)
     {
         var task = await FindTask(id);
+
+        if (task.OwnerId != _currentUserId)
+            throw new AccessDeniedException("No permission");
+
         if (task.StatusId != updateDto.StatusId)
             await _statusService.CheckStatusExists(updateDto.StatusId);
 
@@ -74,6 +78,10 @@ public class TaskService : ITaskService
     public async Task Delete(Guid id)
     {
         var task = await FindTask(id);
+
+        if (task.OwnerId != _currentUserId)
+            throw new AccessDeniedException("No permission");
+
         await _repository.Remove(task);
     }
 
