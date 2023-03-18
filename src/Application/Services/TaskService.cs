@@ -88,22 +88,17 @@ public class TaskService : ITaskService
     public async Task SetAssignees(Guid id, SetAssigneesDto setAssigneesDto)
     {
         var task = await FindTask(id);
+        var memberShips = await _memberShipService.GetListByIds(task.ProjectId, setAssigneesDto.MemberShipIds);
+        task.Assignees = memberShips.Select(x => new Assignee() { MemberShipId = x.Id }).ToList();
 
-        if (task.AssigneeTeamId != setAssigneesDto.AssigneeTeamId && setAssigneesDto.AssigneeTeamId != default)
-        {
-            await _teamService.CheckTeamExists(setAssigneesDto.AssigneeTeamId.GetValueOrDefault());
-            task.AssigneeTeamId = setAssigneesDto.AssigneeTeamId;
-        }
+        await _repository.Update(task);
+    }
 
-        if (setAssigneesDto.AssigneeIds != default)
-        {
-            var assignedMemberShipIds =
-                await _memberShipService.GetAssignedMemberShipIds(task.ProjectId, setAssigneesDto.AssigneeIds);
-
-            task.Assignees = assignedMemberShipIds
-                .Select(x => new Assignee() { MemberShipId = x })
-                .ToList();
-        }
+    public async Task SetAssigneeTeams(Guid id, SetAssigneeTeamsDto setAssigneeTeamsDto)
+    {
+        var task = await FindTask(id);
+        var teams = await _teamService.GetListByIds(task.ProjectId, setAssigneeTeamsDto.TeamIds);
+        task.AssigneeTeams = teams.Select(x => new AssigneeTeam() { TeamId = x.Id }).ToList();
 
         await _repository.Update(task);
     }

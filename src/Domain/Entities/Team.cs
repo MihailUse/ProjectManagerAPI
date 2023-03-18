@@ -9,7 +9,7 @@ public class Team
 
     public Guid ProjectId { get; set; }
 
-    public Project Project { get; set; }
-    public List<Task> Tasks { get; set; } = null!;
+    public Project Project { get; set; } = null!;
     public List<MemberShip> MemberShips { get; set; } = null!;
+    public List<AssigneeTeam> AssigneeTeams { get; set; } = null!;
 }

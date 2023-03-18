@@ -11,4 +11,5 @@ public interface ITaskService
     Task Update(Guid id, UpdateTaskDto updateDto);
     Task Delete(Guid id);
     Task SetAssignees(Guid id, SetAssigneesDto setAssigneesDto);
+    Task SetAssigneeTeams(Guid id, SetAssigneeTeamsDto setAssigneeTeamsDto);
 }

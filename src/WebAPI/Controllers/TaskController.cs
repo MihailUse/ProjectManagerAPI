@@ -51,9 +51,15 @@ public class TaskController : ControllerBase
         await _taskService.Delete(id);
     }
 
-    [HttpPost("{id:guid}/Assignee")]
-    public async Task SetAssignees(Guid id, [FromBody] SetAssigneesDto query)
+    [HttpPut("{id:guid}/Assignee")]
+    public async Task SetAssignees(Guid id, Guid projectId, [FromBody] SetAssigneesDto query)
     {
         await _taskService.SetAssignees(id, query);
+    }
+
+    [HttpPut("{id:guid}/AssigneeTeam")]
+    public async Task SetAssigneeTeams(Guid id, Guid projectId, [FromBody] SetAssigneeTeamsDto query)
+    {
+        await _taskService.SetAssigneeTeams(id, query);
     }
 }

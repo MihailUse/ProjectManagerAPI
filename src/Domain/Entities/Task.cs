@@ -9,12 +9,12 @@ public class Task : Timestamp
     public Guid OwnerId { get; set; }
     public Guid StatusId { get; set; }
     public Guid ProjectId { get; set; }
-    public Guid? AssigneeTeamId { get; set; }
 
-    public Team? AssigneeTeam { get; set; }
     public User Owner { get; set; } = null!;
     public Status Status { get; set; } = null!;
     public Project Project { get; set; } = null!;
+
     public List<Comment> Comments { get; set; } = null!;
     public List<Assignee> Assignees { get; set; } = null!;
+    public List<AssigneeTeam> AssigneeTeams { get; set; } = null!;
 }

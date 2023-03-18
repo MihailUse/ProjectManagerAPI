@@ -26,6 +26,15 @@ public class TeamService : ITeamService
         _memberShipService = memberShipService;
     }
 
+    public async Task<List<Team>> GetListByIds(Guid projectId, List<Guid> teamIds)
+    {
+        var teams = await _repository.GetListByIds(projectId, teamIds);
+        if (teams.Count != teamIds.Count)
+            throw new NotFoundException("Some teams not found");
+
+        return teams;
+    }
+
     public async Task<PaginatedList<TeamDto>> GetList(Guid projectId, SearchTeamDto searchDto)
     {
         return await _repository.GetList(projectId, searchDto);
@@ -37,7 +46,7 @@ public class TeamService : ITeamService
         team.ProjectId = projectId;
 
         if (createDto.MemberShipIds.Count > 0)
-            team.MemberShips = await _memberShipService.GetListByIds(createDto.MemberShipIds);
+            team.MemberShips = await _memberShipService.GetListByIds(projectId, createDto.MemberShipIds);
 
         await _repository.Add(team);
         return team.Id;
@@ -49,7 +58,7 @@ public class TeamService : ITeamService
         team = _mapper.Map(updateDto, team);
 
         if (updateDto.MemberShipIds.Count > 0)
-            team.MemberShips = await _memberShipService.GetListByIds(updateDto.MemberShipIds);
+            team.MemberShips = await _memberShipService.GetListByIds(team.ProjectId, updateDto.MemberShipIds);
 
         await _repository.Update(team);
     }
@@ -58,13 +67,6 @@ public class TeamService : ITeamService
     {
         var team = await FindTeam(id);
         await _repository.Remove(team);
-    }
-
-    public async Task CheckTeamExists(Guid teamId)
-    {
-        var team = await _repository.CheckExists(teamId);
-        if (!team)
-            throw new NotFoundException("Team not found");
     }
 
     private async Task<Team> FindTeam(Guid id)

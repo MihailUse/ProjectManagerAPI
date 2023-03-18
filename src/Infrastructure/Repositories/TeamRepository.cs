@@ -26,6 +26,13 @@ public class TeamRepository : ITeamRepository
         return await _database.Teams.FindAsync(id);
     }
 
+    public async Task<List<Team>> GetListByIds(Guid projectId, List<Guid> teamIds)
+    {
+        return await _database.Teams
+            .Where(x => x.ProjectId == projectId && teamIds.Contains(x.Id))
+            .ToListAsync();
+    }
+
     public async Task<PaginatedList<TeamDto>> GetList(Guid projectId, SearchTeamDto searchDto)
     {
         var query = _database.Teams.Where(x => x.ProjectId == projectId);
@@ -52,10 +59,5 @@ public class TeamRepository : ITeamRepository
     {
         _database.Teams.Remove(team);
         await _database.SaveChangesAsync();
-    }
-
-    public async Task<bool> CheckExists(Guid teamId)
-    {
-        return await _database.Teams.AnyAsync(x => x.Id == teamId);
     }
 }

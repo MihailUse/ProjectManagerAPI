@@ -26,17 +26,10 @@ public class MemberShipRepository : IMemberShipRepository
         return await _database.MemberShips.FindAsync(id);
     }
 
-    public async Task<List<MemberShip>> GetByIds(List<Guid> memberShipIds)
+    public async Task<List<MemberShip>> GetByIds(Guid projectId, List<Guid> memberShipIds)
     {
         return await _database.MemberShips
-            .Where(x => memberShipIds.Contains(x.Id))
-            .ToListAsync();
-    }
-
-    public async Task<List<Guid>> GetIdsByUserIds(Guid projectId, List<Guid> userIds)
-    {
-        return await _database.MemberShips.Where(x => x.ProjectId == projectId && userIds.Contains(x.UserId))
-            .Select(x => x.Id)
+            .Where(x => x.ProjectId == projectId && memberShipIds.Contains(x.Id))
             .ToListAsync();
     }
 

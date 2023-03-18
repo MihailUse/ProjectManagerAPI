@@ -12,6 +12,7 @@ public class MemberShip
     public User User { get; set; } = null!;
     public Project Project { get; set; } = null!;
     public List<Team> Teams { get; set; } = null!;
+    public List<Assignee> Assignees { get; set; } = null!;
 
     public MemberShip(Guid userId, Role role)
     {

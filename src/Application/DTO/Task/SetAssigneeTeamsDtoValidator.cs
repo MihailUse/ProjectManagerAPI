@@ -2,14 +2,14 @@ using FluentValidation;
 
 namespace Application.DTO.Task;
 
-public class SetAssigneesDtoValidator : AbstractValidator<SetAssigneesDto>
+public class SetAssigneeTeamsDtoValidator : AbstractValidator<SetAssigneeTeamsDto>
 {
-    public SetAssigneesDtoValidator()
+    public SetAssigneeTeamsDtoValidator()
     {
-        RuleFor(x => x.MemberShipIds)
+        RuleFor(x => x.TeamIds)
             .NotEmpty()
             .Must(x => x.Count < 6);
-        RuleFor(x => x.MemberShipIds)
+        RuleFor(x => x.TeamIds)
             .Must(x => x?.Distinct().Count() == x?.Count)
             .WithMessage("Cannot contain duplicates");
     }

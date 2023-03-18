@@ -14,6 +14,7 @@ public class DatabaseContext : DbContext
     public DbSet<MemberShip> MemberShips => Set<MemberShip>();
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<Assignee> Assignees => Set<Assignee>();
+    public DbSet<AssigneeTeam> AssigneeTeams => Set<AssigneeTeam>();
     public DbSet<Status> Statuses => Set<Status>();
     public DbSet<Domain.Entities.Task> Tasks => Set<Domain.Entities.Task>();
     public DbSet<Team> Teams => Set<Team>();
@@ -31,6 +32,7 @@ public class DatabaseContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Assignee>().HasKey(x => new { x.TaskId, x.MemberShipId });
+        modelBuilder.Entity<AssigneeTeam>().HasKey(x => new { x.TaskId, x.TeamId });
         modelBuilder.Entity<ProjectAttach>().HasKey(x => new { x.ProjectId, x.AttachId });
         modelBuilder.HasPostgresEnum<Role>();
 
