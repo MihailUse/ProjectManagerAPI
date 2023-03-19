@@ -28,7 +28,7 @@ public class UserController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<UserDto> Get(Guid id)
     {
-        return await _userService.GetById(id);
+        return await _userService.Get(id);
     }
 
     [AllowAnonymous]

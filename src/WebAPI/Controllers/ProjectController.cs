@@ -1,24 +1,23 @@
 using Application.DTO.Common;
 using Application.DTO.Project;
-using Application.DTO.Team;
 using Application.Interfaces.Services;
+using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebAPI.Filters;
 
 namespace WebAPI.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("Api/[controller]")]
+[Route("Api/Project")]
 public class ProjectController : ControllerBase
 {
     private readonly IProjectService _projectService;
-    private readonly ITeamService _teamService;
 
-    public ProjectController(IProjectService projectService, ITeamService teamService)
+    public ProjectController(IProjectService projectService)
     {
         _projectService = projectService;
-        _teamService = teamService;
     }
 
     [HttpGet]
@@ -30,7 +29,7 @@ public class ProjectController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<ProjectDto> Get(Guid id)
     {
-        return await _projectService.GetById(id);
+        return await _projectService.Get(id);
     }
 
     [HttpPost]
@@ -40,44 +39,16 @@ public class ProjectController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [CheckPermission(Role.Administrator)]
     public async Task Put(Guid id, [FromBody] UpdateProjectDto query)
     {
         await _projectService.Update(id, query);
     }
 
     [HttpDelete("{id:guid}")]
+    [CheckPermission(Role.Owner)]
     public async Task Delete(Guid id)
     {
         await _projectService.Delete(id);
-    }
-
-    [HttpGet("{projectId:guid}")]
-    public async Task<PaginatedList<TeamBriefDto>> Get([FromRoute] Guid projectId, [FromQuery] SearchTeamDto query)
-    {
-        return await _teamService.GetList(projectId, query);
-    }
-
-    [HttpGet("{projectId:guid}/{id:guid}")]
-    public async Task<TeamDto> Get([FromRoute] Guid projectId, Guid id)
-    {
-        return await _teamService.GetById(projectId, id);
-    }
-
-    [HttpPost("{projectId:guid}/{id:guid}")]
-    public async Task<Guid> Post([FromRoute] Guid projectId, [FromBody] CreateTeamDto query)
-    {
-        return await _teamService.Create(projectId, query);
-    }
-
-    [HttpPut("{projectId:guid}/{id:guid}")]
-    public async Task Put([FromRoute] Guid projectId, [FromRoute] Guid id, [FromBody] UpdateTeamDto query)
-    {
-        await _teamService.Update(projectId, id, query);
-    }
-
-    [HttpDelete("{projectId:guid}/{id:guid}")]
-    public async Task Delete([FromRoute] Guid projectId, [FromRoute] Guid id)
-    {
-        await _teamService.Delete(projectId, id);
     }
 }

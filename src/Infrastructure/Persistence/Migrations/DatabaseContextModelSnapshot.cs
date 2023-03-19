@@ -38,6 +38,21 @@ namespace Infrastructure.Persistence.Migrations
                     b.ToTable("Assignees");
                 });
 
+            modelBuilder.Entity("Domain.Entities.AssigneeTeam", b =>
+                {
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TeamId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("TaskId", "TeamId");
+
+                    b.HasIndex("TeamId");
+
+                    b.ToTable("AssigneeTeams");
+                });
+
             modelBuilder.Entity("Domain.Entities.Attach", b =>
                 {
                     b.Property<Guid>("Id")
@@ -188,9 +203,6 @@ namespace Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("AssigneeTeamId")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -215,8 +227,6 @@ namespace Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AssigneeTeamId");
 
                     b.HasIndex("OwnerId");
 
@@ -334,7 +344,7 @@ namespace Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Domain.Entities.Assignee", b =>
                 {
                     b.HasOne("Domain.Entities.MemberShip", "MemberShip")
-                        .WithMany()
+                        .WithMany("Assignees")
                         .HasForeignKey("MemberShipId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -348,6 +358,25 @@ namespace Infrastructure.Persistence.Migrations
                     b.Navigation("MemberShip");
 
                     b.Navigation("Task");
+                });
+
+            modelBuilder.Entity("Domain.Entities.AssigneeTeam", b =>
+                {
+                    b.HasOne("Domain.Entities.Task", "Task")
+                        .WithMany("AssigneeTeams")
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Team", "Team")
+                        .WithMany("AssigneeTeams")
+                        .HasForeignKey("TeamId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Task");
+
+                    b.Navigation("Team");
                 });
 
             modelBuilder.Entity("Domain.Entities.Comment", b =>
@@ -429,10 +458,6 @@ namespace Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Task", b =>
                 {
-                    b.HasOne("Domain.Entities.Team", "AssigneeTeam")
-                        .WithMany("Tasks")
-                        .HasForeignKey("AssigneeTeamId");
-
                     b.HasOne("Domain.Entities.User", "Owner")
                         .WithMany("Tasks")
                         .HasForeignKey("OwnerId")
@@ -450,8 +475,6 @@ namespace Infrastructure.Persistence.Migrations
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("AssigneeTeam");
 
                     b.Navigation("Owner");
 
@@ -515,6 +538,11 @@ namespace Infrastructure.Persistence.Migrations
                     b.Navigation("Users");
                 });
 
+            modelBuilder.Entity("Domain.Entities.MemberShip", b =>
+                {
+                    b.Navigation("Assignees");
+                });
+
             modelBuilder.Entity("Domain.Entities.Project", b =>
                 {
                     b.Navigation("Memberships");
@@ -533,6 +561,8 @@ namespace Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Task", b =>
                 {
+                    b.Navigation("AssigneeTeams");
+
                     b.Navigation("Assignees");
 
                     b.Navigation("Comments");
@@ -540,7 +570,7 @@ namespace Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Domain.Entities.Team", b =>
                 {
-                    b.Navigation("Tasks");
+                    b.Navigation("AssigneeTeams");
                 });
 
             modelBuilder.Entity("Domain.Entities.User", b =>

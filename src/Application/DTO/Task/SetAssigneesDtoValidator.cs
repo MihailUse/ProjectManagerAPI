@@ -6,9 +6,10 @@ public class SetAssigneesDtoValidator : AbstractValidator<SetAssigneesDto>
 {
     public SetAssigneesDtoValidator()
     {
-        RuleFor(x => new { x.AssigneeIds, x.AssigneeTeamId })
-            .Must(x => x.AssigneeIds is { Count: > 0 } || x.AssigneeTeamId != default);
-        RuleFor(x => x.AssigneeIds)
+        RuleFor(x => x.MemberShipIds)
+            .NotEmpty()
+            .Must(x => x.Count < 6);
+        RuleFor(x => x.MemberShipIds)
             .Must(x => x?.Distinct().Count() == x?.Count)
             .WithMessage("Cannot contain duplicates");
     }

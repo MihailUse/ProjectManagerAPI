@@ -1,14 +1,16 @@
 using Application.DTO.Common;
 using Application.DTO.Status;
 using Application.Interfaces.Services;
+using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebAPI.Filters;
 
 namespace WebAPI.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("Api/[controller]")]
+[Route("Api/Project/{projectId:guid}/Status")]
 public class StatusController : ControllerBase
 {
     private readonly IStatusService _statusService;
@@ -19,24 +21,28 @@ public class StatusController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<PaginatedList<StatusDto>> Get([FromQuery] SearchStatusDto query)
+    [CheckPermission(Role.MemberShip)]
+    public async Task<PaginatedList<StatusDto>> Get([FromRoute] Guid projectId, [FromQuery] SearchStatusDto query)
     {
-        return await _statusService.GetList(query);
+        return await _statusService.GetList(projectId, query);
     }
 
     [HttpPost]
-    public async Task<Guid> Post([FromBody] CreateStatusDto query)
+    [CheckPermission(Role.Administrator)]
+    public async Task<Guid> Post([FromRoute] Guid projectId, [FromBody] CreateStatusDto query)
     {
-        return await _statusService.Create(query);
+        return await _statusService.Create(projectId, query);
     }
 
     [HttpPut("{id:guid}")]
+    [CheckPermission(Role.Administrator)]
     public async Task Put(Guid id, [FromBody] UpdateStatusDto query)
     {
         await _statusService.Update(id, query);
     }
 
     [HttpDelete("{id:guid}")]
+    [CheckPermission(Role.Administrator)]
     public async Task Delete(Guid id)
     {
         await _statusService.Delete(id);

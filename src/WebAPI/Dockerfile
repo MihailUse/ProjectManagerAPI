@@ -10,8 +10,7 @@ COPY ["src/Application/Application.csproj", "Application/"]
 COPY ["src/Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 
 WORKDIR /app 
-COPY ["*.sln", "."]
-RUN dotnet restore
+RUN dotnet restore "src/WebAPI/WebAPI.csproj"
 
 WORKDIR /app/src
 COPY ["src/WebAPI/*", "WebAPI/"]

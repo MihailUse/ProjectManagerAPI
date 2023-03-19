@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Authentication;
 using System.Security.Claims;
+using Infrastructure.Persistence;
 
 namespace Infrastructure.Services;
 
@@ -21,12 +22,13 @@ public enum TokenType
 
 public class IdentityService : IIdentityService
 {
-    private readonly IDatabaseContext _database;
+    // TODO: remove database and use user service or repository 
+    private readonly DatabaseContext _database;
     private readonly AuthConfig _authConfig;
     private readonly IHashGenerator _hashGenerator;
 
     public IdentityService(
-        IDatabaseContext database,
+        DatabaseContext database,
         IOptions<AuthConfig> authConfig,
         IHashGenerator hashGenerator
     )
@@ -100,7 +102,7 @@ public class IdentityService : IIdentityService
     public AccessTokensDto GenerateTokens(UserSession userSession)
     {
         // token claims
-        var tokenClaims = new Claim[]
+        var tokenClaims = new[]
         {
             new Claim(ClaimTypes.PrimarySid, userSession.Id.ToString()),
             new Claim(ClaimTypes.NameIdentifier, userSession.UserId.ToString()),
@@ -108,7 +110,7 @@ public class IdentityService : IIdentityService
         };
 
         // refresh tokens
-        var refreshTokenClaims = new Claim[]
+        var refreshTokenClaims = new[]
         {
             new Claim(ClaimTypes.PrimarySid, userSession.RefreshTokenId.ToString()),
             new Claim(JwtRegisteredClaimNames.Typ, TokenType.Refresh.ToString()),
@@ -121,7 +123,7 @@ public class IdentityService : IIdentityService
         };
     }
 
-    private string GenerateEncodedToken(Claim[] claims, int lifeTime)
+    private string GenerateEncodedToken(IEnumerable<Claim> claims, int lifeTime)
     {
         var dateTime = DateTime.UtcNow;
         var token = new JwtSecurityToken(

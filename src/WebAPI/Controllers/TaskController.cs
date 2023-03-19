@@ -1,14 +1,17 @@
 using Application.DTO.Common;
 using Application.DTO.Task;
 using Application.Interfaces.Services;
+using Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebAPI.Filters;
 
 namespace WebAPI.Controllers;
 
+[CheckPermission(Role.MemberShip)]
 [Authorize]
 [ApiController]
-[Route("Api/[controller]")]
+[Route("Api/Project/{projectId:guid}/Task")]
 public class TaskController : ControllerBase
 {
     private readonly ITaskService _taskService;
@@ -18,22 +21,22 @@ public class TaskController : ControllerBase
         _taskService = taskService;
     }
 
-    [HttpGet]
-    public async Task<PaginatedList<TaskBriefDto>> Get([FromQuery] SearchTaskDto query)
-    {
-        return await _taskService.GetList(query);
-    }
-
     [HttpGet("{id:guid}")]
     public async Task<TaskDto> Get(Guid id)
     {
         return await _taskService.GetById(id);
     }
 
-    [HttpPost]
-    public async Task<Guid> Post([FromBody] CreateTaskDto query)
+    [HttpGet]
+    public async Task<PaginatedList<TaskBriefDto>> Get([FromQuery] SearchTaskDto query)
     {
-        return await _taskService.Create(query);
+        return await _taskService.GetList(query);
+    }
+
+    [HttpPost]
+    public async Task<Guid> Post(Guid projectId, [FromBody] CreateTaskDto query)
+    {
+        return await _taskService.Create(projectId, query);
     }
 
     [HttpPut("{id:guid}")]
@@ -48,9 +51,15 @@ public class TaskController : ControllerBase
         await _taskService.Delete(id);
     }
 
-    [HttpPost("{id:guid}/Assignee")]
-    public async Task SetAssignees(Guid id, [FromBody] SetAssigneesDto query)
+    [HttpPut("{id:guid}/Assignee")]
+    public async Task SetAssignees(Guid id, Guid projectId, [FromBody] SetAssigneesDto query)
     {
         await _taskService.SetAssignees(id, query);
+    }
+
+    [HttpPut("{id:guid}/AssigneeTeam")]
+    public async Task SetAssigneeTeams(Guid id, Guid projectId, [FromBody] SetAssigneeTeamsDto query)
+    {
+        await _taskService.SetAssigneeTeams(id, query);
     }
 }
