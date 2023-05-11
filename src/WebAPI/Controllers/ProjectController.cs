@@ -26,7 +26,7 @@ public class ProjectController : ControllerBase
         return await _projectService.GetList(query);
     }
 
-    [HttpGet("{projectId:guid}")]
+    [HttpGet("{id:guid}")]
     public async Task<ProjectDto> Get(Guid id)
     {
         return await _projectService.Get(id);
