@@ -26,7 +26,7 @@ public class ProjectController : ControllerBase
         return await _projectService.GetList(query);
     }
 
-    [HttpGet("{id:guid}")]
+    [HttpGet("{projectId:guid}")]
     public async Task<ProjectDto> Get(Guid id)
     {
         return await _projectService.Get(id);
@@ -38,17 +38,17 @@ public class ProjectController : ControllerBase
         return await _projectService.Create(query);
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut("{projectId:guid}")]
     [CheckPermission(Role.Administrator)]
-    public async Task Put(Guid id, [FromBody] UpdateProjectDto query)
+    public async Task Put(Guid projectId, [FromBody] UpdateProjectDto query)
     {
-        await _projectService.Update(id, query);
+        await _projectService.Update(projectId, query);
     }
 
-    [HttpDelete("{id:guid}")]
+    [HttpDelete("{projectId:guid}")]
     [CheckPermission(Role.Owner)]
-    public async Task Delete(Guid id)
+    public async Task Delete(Guid projectId)
     {
-        await _projectService.Delete(id);
+        await _projectService.Delete(projectId);
     }
 }

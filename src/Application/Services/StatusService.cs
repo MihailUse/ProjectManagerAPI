@@ -40,7 +40,7 @@ public class StatusService : IStatusService
     {
         var status = await FindStatus(id);
         if (status.ProjectId == default)
-            throw new InvalidOperationException("Can't update default status");
+            throw new BadOperationException("Can't update default status");
 
         var existsStatus = await _repository.FindByName(updateDto.Name, status.ProjectId);
         if (existsStatus != default && existsStatus.Id != id)
@@ -54,7 +54,7 @@ public class StatusService : IStatusService
     {
         var status = await FindStatus(id);
         if (status.ProjectId == default)
-            throw new InvalidOperationException("Can't delete default status");
+            throw new BadOperationException("Can't delete default status");
 
         await _repository.Remove(status);
     }

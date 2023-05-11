@@ -72,7 +72,7 @@ public class MemberShipService : IMemberShipService
     {
         var memberShip = await GetById(id);
         if (memberShip.Role == Role.Owner)
-            throw new InvalidOperationException("Can not update project owner");
+            throw new BadOperationException("Can not update project owner");
 
         memberShip = _mapper.Map(updateDto, memberShip);
         await _repository.Update(memberShip);
@@ -82,7 +82,7 @@ public class MemberShipService : IMemberShipService
     {
         var memberShip = await GetById(id);
         if (memberShip.Role == Role.Owner)
-            throw new InvalidOperationException("Can not delete project owner");
+            throw new BadOperationException("Can not delete project owner");
 
         await _repository.Remove(memberShip);
     }

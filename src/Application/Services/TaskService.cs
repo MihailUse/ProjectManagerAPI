@@ -56,6 +56,7 @@ public class TaskService : ITaskService
 
         var task = _mapper.Map<TaskEntity>(createDto);
         task.OwnerId = _currentUserId;
+        task.ProjectId = projectId;
 
         await _repository.AddAsync(task);
         return task.Id;

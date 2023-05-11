@@ -24,7 +24,7 @@ public class ErrorHandlerMiddleware
         {
             var result = e switch
             {
-                InvalidOperationException => new BadRequestObjectResult(e.Message),
+                BadOperationException => new BadRequestObjectResult(e.Message),
                 AuthException => new UnauthorizedObjectResult(e.Message),
                 AccessDeniedException => new UnauthorizedObjectResult(e.Message)
                     { StatusCode = StatusCodes.Status403Forbidden },

@@ -17,9 +17,9 @@ public class CheckPermissionAttribute : ActionFilterAttribute
     public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
         var projectService = context.HttpContext.RequestServices.GetService<IProjectService>();
-        var projectIdArgument = context.ActionArguments.First(x => x.Key == "projectId");
+        var projectIdArgument = context.ActionArguments.FirstOrDefault(x => x.Key == "projectId").Value;
 
-        var isValidGuid = Guid.TryParse(projectIdArgument.Value?.ToString(), out var projectId);
+        var isValidGuid = Guid.TryParse(projectIdArgument?.ToString(), out var projectId);
         if (!isValidGuid)
         {
             context.Result = new NotFoundResult();
