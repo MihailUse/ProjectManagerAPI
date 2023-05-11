@@ -32,6 +32,8 @@ public class StatusService : IStatusService
             throw new ConflictException("Status already exists in project");
 
         var status = _mapper.Map<Status>(createDto);
+        status.ProjectId = projectId;
+
         await _repository.Add(status);
         return status.Id;
     }
@@ -63,7 +65,7 @@ public class StatusService : IStatusService
     {
         var statusExists = await _repository.CheckExists(statusId);
         if (!statusExists)
-            throw new NotFoundException("Task not found");
+            throw new NotFoundException("Status not found");
     }
 
     private async Task<Status> FindStatus(Guid id)

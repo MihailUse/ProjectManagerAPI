@@ -22,19 +22,19 @@ public class CommentController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<PaginatedList<CommentDto>> Get(Guid taskId, [FromQuery] SearchCommentDto query)
+    public async Task<PaginatedList<CommentDto>> Get(Guid taskId, Guid projectId, [FromQuery] SearchCommentDto query)
     {
         return await _commentService.GetList(taskId, query);
     }
 
     [HttpPost]
-    public async Task<Guid> Post(Guid taskId, [FromBody] CreateCommentDto query)
+    public async Task<Guid> Post(Guid taskId, Guid projectId, [FromBody] CreateCommentDto query)
     {
         return await _commentService.Create(taskId, query);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task Put(Guid id, [FromBody] UpdateCommentDto query)
+    public async Task Put(Guid id, Guid projectId, [FromBody] UpdateCommentDto query)
     {
         await _commentService.Update(id, query);
     }

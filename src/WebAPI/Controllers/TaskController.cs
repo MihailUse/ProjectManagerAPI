@@ -28,7 +28,7 @@ public class TaskController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<PaginatedList<TaskBriefDto>> Get([FromQuery] SearchTaskDto query)
+    public async Task<PaginatedList<TaskBriefDto>> Get(Guid projectId, [FromQuery] SearchTaskDto query)
     {
         return await _taskService.GetList(query);
     }
@@ -40,13 +40,13 @@ public class TaskController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task Put(Guid id, [FromBody] UpdateTaskDto query)
+    public async Task Put(Guid id, Guid projectId, [FromBody] UpdateTaskDto query)
     {
         await _taskService.Update(id, query);
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task Delete(Guid id)
+    public async Task Delete(Guid id, Guid projectId)
     {
         await _taskService.Delete(id);
     }

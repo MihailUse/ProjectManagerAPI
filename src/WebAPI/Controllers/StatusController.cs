@@ -36,14 +36,14 @@ public class StatusController : ControllerBase
 
     [HttpPut("{id:guid}")]
     [CheckPermission(Role.Administrator)]
-    public async Task Put(Guid id, [FromBody] UpdateStatusDto query)
+    public async Task Put(Guid id, Guid projectId, [FromBody] UpdateStatusDto query)
     {
         await _statusService.Update(id, query);
     }
 
     [HttpDelete("{id:guid}")]
     [CheckPermission(Role.Administrator)]
-    public async Task Delete(Guid id)
+    public async Task Delete(Guid id, Guid projectId)
     {
         await _statusService.Delete(id);
     }

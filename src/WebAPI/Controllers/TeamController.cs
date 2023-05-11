@@ -36,14 +36,14 @@ public class TeamController : ControllerBase
 
     [HttpPut("{id:guid}")]
     [CheckPermission(Role.Administrator)]
-    public async Task Put(Guid id, [FromBody] UpdateTeamDto query)
+    public async Task Put(Guid id, Guid projectId, [FromBody] UpdateTeamDto query)
     {
         await _teamService.Update(id, query);
     }
 
     [HttpDelete("{id:guid}")]
     [CheckPermission(Role.Administrator)]
-    public async Task Delete(Guid id)
+    public async Task Delete(Guid id, Guid projectId)
     {
         await _teamService.Delete(id);
     }
