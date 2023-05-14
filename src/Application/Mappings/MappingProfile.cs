@@ -32,7 +32,7 @@ public class MappingProfile : Profile
         // Task
         CreateProjection<Task, TaskBriefDto>()
             .ForMember(d => d.Status, m => m.MapFrom(s => s.Status.Name))
-            .ForMember(d => d.Assignees, m => m.MapFrom(s => s.Assignees.Select(x => x.MemberShip.User)));
+            .ForMember(d => d.Assignees, m => m.MapFrom(s => s.Assignees.Select(x => x.MemberShip)));
         CreateProjection<Task, TaskDto>()
             .ForMember(d => d.Status, m => m.MapFrom(s => s.Status.Name))
             .ForMember(d => d.Assignees, m => m.MapFrom(s => s.Assignees.Select(x => x.MemberShip.User)));
