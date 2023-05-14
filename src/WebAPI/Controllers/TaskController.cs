@@ -22,7 +22,7 @@ public class TaskController : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<TaskDto> Get(Guid id)
+    public async Task<TaskDto> Get(Guid id, Guid projectId)
     {
         return await _taskService.GetById(id);
     }
@@ -30,7 +30,7 @@ public class TaskController : ControllerBase
     [HttpGet]
     public async Task<PaginatedList<TaskBriefDto>> Get(Guid projectId, [FromQuery] SearchTaskDto query)
     {
-        return await _taskService.GetList(query);
+        return await _taskService.GetList(projectId, query);
     }
 
     [HttpPost]

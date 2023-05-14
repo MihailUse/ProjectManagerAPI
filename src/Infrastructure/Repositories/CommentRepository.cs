@@ -28,9 +28,12 @@ public class CommentRepository : ICommentRepository
 
     public async Task<PaginatedList<CommentDto>> GetList(Guid taskId, SearchCommentDto searchDto)
     {
-        return await _database.Comments
-            .Where(x => x.TaskId == taskId && EF.Functions.ILike(x.Text, $"%{searchDto.Search}%"))
-            .ProjectToPaginatedList<Comment, CommentDto>(_mapper.ConfigurationProvider, searchDto);
+        var query = _database.Comments.Where(x => x.TaskId == taskId);
+
+        if (!string.IsNullOrEmpty(searchDto.Search))
+            query = query.Where(x => EF.Functions.ILike(x.Text, $"%{searchDto.Search}%"));
+
+        return await query.ProjectToPaginatedList<Comment, CommentDto>(_mapper.ConfigurationProvider, searchDto);
     }
 
     public async Task Add(Comment comment)

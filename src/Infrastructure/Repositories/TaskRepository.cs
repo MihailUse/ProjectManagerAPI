@@ -41,18 +41,18 @@ public class TaskRepository : ITaskRepository
             .FirstOrDefaultAsync(x => x.Id == taskId);
     }
 
-    public async Task<PaginatedList<TaskBriefDto>> GetList(SearchTaskDto searchDto)
+    public async Task<PaginatedList<TaskBriefDto>> GetList(Guid projectId, SearchTaskDto searchDto)
     {
-        IQueryable<TaskEntity> query = _database.Tasks;
+        IQueryable<TaskEntity> query = _database.Tasks
+            .Where(x => x.ProjectId == projectId);
 
         if (!string.IsNullOrEmpty(searchDto.Search))
             query = query.Where(x => EF.Functions.ILike(x.Title, $"%{searchDto.Search}%"));
 
         if (searchDto.StatusId != default)
             query = query.Where(x => x.StatusId == searchDto.StatusId);
-        
-        return await query.ProjectToPaginatedList<TaskEntity, TaskBriefDto>(_mapper.ConfigurationProvider,
-            searchDto);
+
+        return await query.ProjectToPaginatedList<TaskEntity, TaskBriefDto>(_mapper.ConfigurationProvider, searchDto);
     }
 
     public async Task AddAsync(TaskEntity task)

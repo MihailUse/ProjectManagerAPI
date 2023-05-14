@@ -45,9 +45,9 @@ public class TaskService : ITaskService
         return task;
     }
 
-    public async Task<PaginatedList<TaskBriefDto>> GetList(SearchTaskDto searchDto)
+    public async Task<PaginatedList<TaskBriefDto>> GetList(Guid projectId, SearchTaskDto searchDto)
     {
-        return await _repository.GetList(searchDto);
+        return await _repository.GetList(projectId, searchDto);
     }
 
     public async Task<Guid> Create(Guid projectId, CreateTaskDto createDto)

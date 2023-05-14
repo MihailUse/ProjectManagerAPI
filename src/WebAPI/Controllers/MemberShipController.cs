@@ -36,14 +36,14 @@ public class MemberShipController : ControllerBase
 
     [HttpPut("{id:guid}")]
     [CheckPermission(Role.Administrator)]
-    public async Task Put(Guid id, [FromBody] UpdateMemberShipDto query)
+    public async Task Put(Guid id, [FromBody] UpdateMemberShipDto query, Guid projectId)
     {
         await _memberShipService.Update(id, query);
     }
 
     [HttpDelete("{id:guid}")]
     [CheckPermission(Role.Administrator)]
-    public async Task Delete(Guid id)
+    public async Task Delete(Guid id, Guid projectId)
     {
         await _memberShipService.Delete(id);
     }

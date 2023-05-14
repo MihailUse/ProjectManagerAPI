@@ -10,7 +10,7 @@ public interface ITaskRepository
     Task<TaskEntity?> FindById(Guid id);
     Task<TaskDto?> FindByIdProjection(Guid id);
     Task<TaskEntity?> FindByIdWithMemberShip(Guid taskId, Guid memberShipId);
-    Task<PaginatedList<TaskBriefDto>> GetList(SearchTaskDto searchDto);
+    Task<PaginatedList<TaskBriefDto>> GetList(Guid projectId, SearchTaskDto searchDto);
     Task AddAsync(TaskEntity task);
     Task Update(TaskEntity task);
     Task Remove(TaskEntity task);

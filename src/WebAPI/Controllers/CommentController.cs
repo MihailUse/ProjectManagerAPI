@@ -34,7 +34,7 @@ public class CommentController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task Put(Guid id, Guid projectId, [FromBody] UpdateCommentDto query)
+    public async Task Put(Guid id, Guid projectId, Guid taskId, [FromBody] UpdateCommentDto query)
     {
         await _commentService.Update(id, query);
     }

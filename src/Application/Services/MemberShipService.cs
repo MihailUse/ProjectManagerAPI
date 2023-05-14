@@ -64,6 +64,8 @@ public class MemberShipService : IMemberShipService
         await _userService.CheckUserExists(createDto.UserId);
 
         var memberShip = _mapper.Map<MemberShip>(createDto);
+        memberShip.ProjectId = projectId;
+
         await _repository.Add(memberShip);
         return memberShip.Id;
     }

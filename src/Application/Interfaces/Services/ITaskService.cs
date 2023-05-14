@@ -6,7 +6,7 @@ namespace Application.Interfaces.Services;
 public interface ITaskService
 {
     Task<TaskDto> GetById(Guid id);
-    Task<PaginatedList<TaskBriefDto>> GetList(SearchTaskDto searchDto);
+    Task<PaginatedList<TaskBriefDto>> GetList(Guid projectId, SearchTaskDto searchDto);
     Task<Guid> Create(Guid projectId, CreateTaskDto createDto);
     Task Update(Guid id, UpdateTaskDto updateDto);
     Task Delete(Guid id);

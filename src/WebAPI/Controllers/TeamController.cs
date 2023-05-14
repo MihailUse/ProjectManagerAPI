@@ -27,7 +27,7 @@ public class TeamController : ControllerBase
         return await _teamService.GetList(projectId, query);
     }
 
-    [HttpPost("{id:guid}")]
+    [HttpPost]
     [CheckPermission(Role.Administrator)]
     public async Task<Guid> Post(Guid projectId, [FromBody] CreateTeamDto query)
     {
