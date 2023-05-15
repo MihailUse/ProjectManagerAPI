@@ -1,3 +1,4 @@
+using Application.DTO.MemberShip;
 using Application.DTO.Team;
 using Application.DTO.User;
 using Domain.Entities;
@@ -13,5 +14,5 @@ public class TaskDto : Timestamp
 
     public UserBriefDto Owner { get; set; } = null!;
     public TeamDto? AssigneeTeam { get; set; }
-    public List<UserBriefDto> Assignees { get; set; } = null!;
+    public List<MemberShipDto> Assignees { get; set; } = null!;
 }

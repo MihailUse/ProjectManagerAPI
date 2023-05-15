@@ -1,5 +1,6 @@
 using Application.DTO.Common;
 using Application.DTO.Task;
+using TaskEntity = Domain.Entities.Task;
 
 namespace Application.Interfaces.Services;
 
@@ -12,4 +13,5 @@ public interface ITaskService
     Task Delete(Guid id);
     Task SetAssignees(Guid id, SetAssigneesDto setAssigneesDto);
     Task SetAssigneeTeams(Guid id, SetAssigneeTeamsDto setAssigneeTeamsDto);
+    Task<TaskEntity> FindTask(Guid taskId);
 }

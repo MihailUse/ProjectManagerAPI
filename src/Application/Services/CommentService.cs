@@ -13,16 +13,19 @@ public class CommentService : ICommentService
 {
     private readonly IMapper _mapper;
     private readonly ICommentRepository _repository;
+    private readonly ITaskService _taskService;
     private readonly Guid _currentUserId;
 
     public CommentService(
         IMapper mapper,
         ICommentRepository repository,
+        ITaskService taskService,
         ICurrentUserService currentUserService
     )
     {
         _mapper = mapper;
         _repository = repository;
+        _taskService = taskService;
         _currentUserId = currentUserService.UserId;
     }
 
@@ -33,8 +36,11 @@ public class CommentService : ICommentService
 
     public async Task<Guid> Create(Guid taskId, CreateCommentDto createDto)
     {
+        var task = await _taskService.FindTask(taskId);
+
         var comment = _mapper.Map<Comment>(createDto);
         comment.OwnerId = _currentUserId;
+        comment.Task = task;
 
         await _repository.Add(comment);
         return comment.Id;

@@ -104,7 +104,7 @@ public class TaskService : ITaskService
         await _repository.Update(task);
     }
 
-    private async Task<TaskEntity> FindTask(Guid taskId)
+    public async Task<TaskEntity> FindTask(Guid taskId)
     {
         var task = await _repository.FindById(taskId);
         if (task == default)
