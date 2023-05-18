@@ -55,7 +55,7 @@ public static class Program
 
         builder.Services.AddAuthorization(o =>
         {
-            o.AddPolicy("ValidAccessToken", p =>
+            o.AddPolicy("JWTAccessToken", p =>
             {
                 p.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
                 p.RequireAuthenticatedUser();
@@ -88,29 +88,26 @@ public static class Program
 
     private static void SetupSwaggerAction(SwaggerGenOptions options)
     {
-        options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme()
+        var jwtSecurityScheme = new OpenApiSecurityScheme()
         {
             Name = "Authorization",
             Description = "Enter the Bearer Authorization string",
+            BearerFormat = "JWT",
             In = ParameterLocation.Header,
-            Type = SecuritySchemeType.ApiKey,
-            Scheme = JwtBearerDefaults.AuthenticationScheme
-        });
+            Type = SecuritySchemeType.Http,
+            Scheme = JwtBearerDefaults.AuthenticationScheme,
+            Reference = new OpenApiReference()
+            {
+                Type = ReferenceType.SecurityScheme,
+                Id = JwtBearerDefaults.AuthenticationScheme
+            }
+        };
 
+        options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, jwtSecurityScheme);
         options.AddSecurityRequirement(new OpenApiSecurityRequirement()
         {
             {
-                new OpenApiSecurityScheme()
-                {
-                    Reference = new OpenApiReference()
-                    {
-                        Type = ReferenceType.SecurityScheme,
-                        Id = JwtBearerDefaults.AuthenticationScheme
-                    },
-                    Scheme = "oauth2",
-                    Name = JwtBearerDefaults.AuthenticationScheme,
-                    In = ParameterLocation.Header
-                },
+                jwtSecurityScheme,
                 new List<string>()
             }
         });
