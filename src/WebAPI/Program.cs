@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using WebAPI.Filters;
 using WebAPI.Middlewares;
 using WebAPI.Services;
 
@@ -26,7 +27,10 @@ public static class Program
         builder.Services.AddInfrastructureServices(builder.Configuration);
 
         builder.Services.AddFluentValidationAutoValidation();
-        builder.Services.AddControllers();
+        builder.Services.AddControllers(options =>
+        {
+            options.Filters.Add<ErrorHandlerAttribute>();
+        });
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(SetupSwaggerAction);
 
@@ -76,7 +80,6 @@ public static class Program
         app.UseAuthorization();
 
         // add middlewares
-        app.UseErrorHandlerMiddleware();
         app.UseAuthorizationMiddleware();
 
         app.MapControllers();
