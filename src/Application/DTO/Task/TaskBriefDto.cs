@@ -7,7 +7,8 @@ public class TaskBriefDto
 {
     public Guid Id { get; set; }
     public string Title { get; set; } = null!;
-    public TeamDto? AssigneeTeam { get; set; }
     public string Status { get; set; } = null!;
+    public Guid ProjectId { get; set; }
+    public TeamDto? AssigneeTeam { get; set; }
     public List<MemberShipDto> Assignees { get; set; } = null!;
 }

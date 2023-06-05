@@ -10,6 +10,7 @@ public class TaskDto : Timestamp
     public Guid Id { get; set; }
     public string Title { get; set; } = null!;
     public string? Description { get; set; }
+    public Guid ProjectId { get; set; }
     public string Status { get; set; } = null!;
 
     public UserBriefDto Owner { get; set; } = null!;
