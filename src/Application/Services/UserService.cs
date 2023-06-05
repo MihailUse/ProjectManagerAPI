@@ -39,8 +39,11 @@ internal class UserService : IUserService
 
     public async Task<UserDto> Get(Guid id)
     {
-        var user = await GetById(id);
-        return _mapper.Map<UserDto>(user);
+        var user = await _repository.FindByIdProjection(id, _currentUserService.UserId);
+        if (user == default)
+            throw new NotFoundException("User not found");
+
+        return user;
     }
 
     public async Task<PaginatedList<UserBriefDto>> GetList(SearchUserDto searchDto)

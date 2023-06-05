@@ -3,6 +3,7 @@ using Application.DTO.User;
 using Infrastructure.Extensions;
 using Application.Interfaces.Repositories;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Domain.Entities;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,13 @@ public class UserRepository : IUserRepository
     public async Task<User?> FindById(Guid id)
     {
         return await _database.Users.FindAsync(id);
+    }
+
+    public async Task<UserDto?> FindByIdProjection(Guid id, Guid currentUserId)
+    {
+        return await _database.Users
+            .ProjectTo<UserDto>(_mapper.ConfigurationProvider, new { currentUserId })
+            .FirstOrDefaultAsync();
     }
 
     public async Task<PaginatedList<UserBriefDto>> GetList(SearchUserDto searchDto)

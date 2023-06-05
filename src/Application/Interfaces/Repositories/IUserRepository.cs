@@ -8,6 +8,7 @@ namespace Application.Interfaces.Repositories;
 public interface IUserRepository
 {
     Task<User?> FindById(Guid id);
+    Task<UserDto?> FindByIdProjection(Guid id, Guid currentUserId);
     Task<PaginatedList<UserBriefDto>> GetList(SearchUserDto searchDto);
     Task Update(User user);
     Task Add(User user);

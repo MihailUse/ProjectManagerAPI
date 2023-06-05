@@ -7,6 +7,7 @@ using Application.DTO.Team;
 using Application.DTO.User;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Enums;
 using Task = Domain.Entities.Task;
 
 namespace Application.Mappings;
@@ -15,10 +16,54 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
+        // parameters 
+        Guid? currentUserId = null;
+
         #region Projections
 
         // User
         CreateProjection<User, UserBriefDto>();
+        CreateProjection<User, UserDto>()
+            .ForMember(
+                d => d.CountCommonProjects,
+                m => m.MapFrom(
+                    s => s.MemberShips.Count(x => x.Project.Memberships.Any(ms => ms.UserId == currentUserId))
+                )
+            )
+            .ForMember(
+                d => d.CountAssignedTasks,
+                m => m.MapFrom(
+                    s => s.MemberShips
+                        .Where(x => x.Project.Memberships.Any(ms => ms.UserId == currentUserId))
+                        .Select(x => x.Project.Tasks)
+                        .Count(
+                            x => x.Any(t =>
+                                t.Assignees.Any(a => a.MemberShip.UserId == currentUserId) ||
+                                t.AssigneeTeams.Any(at => at.Team.MemberShips.Any(tm => tm.UserId == currentUserId))
+                            )
+                        )
+                )
+            )
+            .ForMember(
+                d => d.CountCreatedProjects,
+                m => m.MapFrom(s => s.MemberShips.Count(x => x.Role == Role.Owner))
+            )
+            .ForMember(
+                d => d.CountCreatedTasks,
+                m => m.MapFrom(s => s.Tasks.Count)
+            )
+            .ForMember(
+                d => d.CountWrittenComments,
+                m => m.MapFrom(s => s.Comments.Count)
+            )
+            .ForMember(
+                d => d.AssignedTasks,
+                m => m.MapFrom(
+                    s => s.MemberShips
+                        .Where(x => x.Project.Memberships.Any(ms => ms.UserId == currentUserId))
+                        .SelectMany(x => x.Project.Tasks)
+                )
+            );
 
         // Project
         CreateProjection<Project, ProjectBriefDto>();
@@ -48,7 +93,6 @@ public class MappingProfile : Profile
         #region Maps
 
         // User
-        CreateMap<User, UserDto>();
         CreateMap<UpdateUserDto, User>();
 
         // Project
