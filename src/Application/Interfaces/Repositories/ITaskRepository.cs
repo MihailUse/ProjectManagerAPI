@@ -8,6 +8,7 @@ namespace Application.Interfaces.Repositories;
 public interface ITaskRepository
 {
     Task<TaskEntity?> FindById(Guid id);
+    Task<TaskEntity?> FindByIdWithAssignees(Guid taskId);
     Task<TaskDto?> FindByIdProjection(Guid id);
     Task<TaskEntity?> FindByIdWithMemberShip(Guid taskId, Guid memberShipId);
     Task<PaginatedList<TaskBriefDto>> GetList(Guid projectId, SearchTaskDto searchDto);

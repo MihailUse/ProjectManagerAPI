@@ -88,7 +88,7 @@ public class TaskService : ITaskService
 
     public async Task SetAssignees(Guid id, SetAssigneesDto setAssigneesDto)
     {
-        var task = await FindTask(id);
+        var task = await FindByIdWithAssignees(id);
         var memberShips = await _memberShipService.GetListByIds(task.ProjectId, setAssigneesDto.MemberShipIds);
         task.Assignees = memberShips.Select(x => new Assignee() { MemberShipId = x.Id }).ToList();
 
@@ -97,7 +97,7 @@ public class TaskService : ITaskService
 
     public async Task SetAssigneeTeams(Guid id, SetAssigneeTeamsDto setAssigneeTeamsDto)
     {
-        var task = await FindTask(id);
+        var task = await FindByIdWithAssignees(id);
         var teams = await _teamService.GetListByIds(task.ProjectId, setAssigneeTeamsDto.TeamIds);
         task.AssigneeTeams = teams.Select(x => new AssigneeTeam() { TeamId = x.Id }).ToList();
 
@@ -107,6 +107,15 @@ public class TaskService : ITaskService
     public async Task<TaskEntity> FindTask(Guid taskId)
     {
         var task = await _repository.FindById(taskId);
+        if (task == default)
+            throw new NotFoundException("Task not found");
+
+        return task;
+    }
+
+    private async Task<TaskEntity> FindByIdWithAssignees(Guid taskId)
+    {
+        var task = await _repository.FindByIdWithAssignees(taskId);
         if (task == default)
             throw new NotFoundException("Task not found");
 

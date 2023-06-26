@@ -31,7 +31,7 @@ public class UserRepository : IUserRepository
     {
         return await _database.Users
             .ProjectTo<UserDto>(_mapper.ConfigurationProvider, new { currentUserId })
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<PaginatedList<UserBriefDto>> GetList(SearchUserDto searchDto)

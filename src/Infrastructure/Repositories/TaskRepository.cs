@@ -26,6 +26,13 @@ public class TaskRepository : ITaskRepository
     {
         return await _database.Tasks.FindAsync(id);
     }
+    
+    public async Task<TaskEntity?> FindByIdWithAssignees(Guid taskId)
+    {
+        return await _database.Tasks
+            .Include(x => x.Assignees)
+            .FirstOrDefaultAsync(x => x.Id == taskId);
+    }
 
     public async Task<TaskDto?> FindByIdProjection(Guid id)
     {
